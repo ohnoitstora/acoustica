@@ -36,8 +36,12 @@ Screen {
     color: #ffb74d;
 }
 #btn-export {
-    background: #061428;
-    color: #82b1ff;
+    background: #2a1206;
+    color: #ffb74d;
+}
+#btn-listen {
+    background: #2a1206;
+    color: #ffb74d;
 }
 #btn-how:hover {
     background: #4a2a80;
@@ -46,7 +50,10 @@ Screen {
     background: #3d1a08;
 }
 #btn-export:hover {
-    background: #0c2040;
+    background: #3d1a08;
+}
+#btn-listen:hover {
+    background: #3d1a08;
 }
 #body {
     layout: horizontal;

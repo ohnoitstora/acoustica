@@ -17,7 +17,7 @@ REPORTS_DIR = Path(__file__).resolve().parent.parent / "reports"
 REPORTS_ANALYSIS_DIR = REPORTS_DIR / "analysis"
 
 
-def export_report(state: AcousticState, notify, output_path: Path | None = None, base_name: str | None = None):
+def export_report(state: AcousticState, notify, output_path: Path | None = None, base_name: str | None = None, options: dict | None = None):
     """
     Export an acoustic analysis report.
     
@@ -26,6 +26,7 @@ def export_report(state: AcousticState, notify, output_path: Path | None = None,
         notify: Callback function for notifications
         output_path: Optional custom output directory (default: reports/analysis)
         base_name: Optional base name for the file (default: auto-generated timestamp)
+        options: Optional dict with keys 'calculations', 'pressure_map', 'mixer' to include/exclude sections
     
     Returns:
         Path to the saved report, or None on failure
@@ -33,6 +34,14 @@ def export_report(state: AcousticState, notify, output_path: Path | None = None,
     if state.width < 0.1 or state.length < 0.1 or state.height < 0.1:
         notify("Room dimensions must be >= 0.1 m", severity="error")
         return None
+    
+    # Default options if not provided
+    if options is None:
+        options = {"calculations": True, "pressure_map": True, "mixer": True}
+    
+    include_calculations = options.get("calculations", True)
+    include_pressure_map = options.get("pressure_map", True)
+    include_mixer = options.get("mixer", True)
     
     rt60_vals = state.rt60_vals
     modes = state.modes
@@ -59,31 +68,36 @@ def export_report(state: AcousticState, notify, output_path: Path | None = None,
         "  Floor   : {}".format(state.floor_mat),
         "  Ceiling : {}".format(state.ceil_mat),
         "",
-        "RT60  (Sabine: RT60 = 0.161 * V / sum(S*alpha))",
-        sep2,
     ]
-    for freq, rt in zip(FREQ_BANDS, rt60_vals):
-        bar = int(rt / max_rt * 30 + 0.5) if max_rt > 0 else 0
-        lines.append("  {:>5} Hz : {:6.3f} s  {}".format(freq, rt, "#" * bar))
-    lines += [
-        "",
-        "  RT60 @ 500 Hz = {:.3f} s  =>  {}".format(state.rt60_500, rt60_quality(state.rt60_500)),
-        "",
-        "AXIAL ROOM MODES  (fn = n * 343 / (2 * L))",
-        sep2,
-    ]
-    for dim, freqs in modes.items():
-        fstr = "  /  ".join("{:.1f} Hz".format(f) for f in freqs) if freqs else "n/a"
-        lines.append("  {:<8}: {}".format(dim, fstr))
-    if state.source is not None:
-        frac_x, frac_y = state.source
-        lines += ["", "SOUND SOURCE POSITION", sep2]
-        lines.append("  S1  X = {:.2f} m,  Y = {:.2f} m".format(
-            frac_x * state.width, frac_y * state.length
-        ))
+    
+    # Add Calculations section if selected
+    if include_calculations:
+        lines += [
+            "RT60  (Sabine: RT60 = 0.161 * V / sum(S*alpha))",
+            sep2,
+        ]
+        for freq, rt in zip(FREQ_BANDS, rt60_vals):
+            bar = int(rt / max_rt * 30 + 0.5) if max_rt > 0 else 0
+            lines.append("  {:>5} Hz : {:6.3f} s  {}".format(freq, rt, "#" * bar))
+        lines += [
+            "",
+            "  RT60 @ 500 Hz = {:.3f} s  =>  {}".format(state.rt60_500, rt60_quality(state.rt60_500)),
+            "",
+            "AXIAL ROOM MODES  (fn = n * 343 / (2 * L))",
+            sep2,
+        ]
+        for dim, freqs in modes.items():
+            fstr = "  /  ".join("{:.1f} Hz".format(f) for f in freqs) if freqs else "n/a"
+            lines.append("  {:<8}: {}".format(dim, fstr))
+        if state.source is not None:
+            frac_x, frac_y = state.source
+            lines += ["", "SOUND SOURCE POSITION", sep2]
+            lines.append("  S1  X = {:.2f} m,  Y = {:.2f} m".format(
+                frac_x * state.width, frac_y * state.length
+            ))
 
-    # Add Sound Pressure Map if in map mode
-    if state.view_mode == "map":
+    # Add Sound Pressure Map if selected and in map mode
+    if include_pressure_map and state.view_mode == "map":
         lines += ["", "SOUND PRESSURE MAP", sep2]
         lines.append("  Mode: {}".format(state.map_mode.replace("-", " ").title()))
         lines.append("")
@@ -130,6 +144,47 @@ def export_report(state: AcousticState, notify, output_path: Path | None = None,
         lines.append("  (W axis -->)")
         lines.append("")
         lines.append("  Legend: S = Speaker (High Pressure), L = Listener (Low Pressure)")
+
+    # Add Mixer Info if selected
+    if include_mixer:
+        lines += ["", "ACOUSTIC MIXER INFO", sep2]
+        lines.append("  Area-weighted absorption coefficients from room materials:")
+        lines.append("")
+        
+        # Calculate area-weighted absorption
+        width, length, height = state.width, state.length, state.height
+        wall_area = 2.0 * length * height + 2.0 * width * height
+        floor_area = width * length
+        ceiling_area = width * length
+        total_area = wall_area + floor_area + ceiling_area
+        
+        from .constants import MATERIALS
+        wall_absorption = MATERIALS.get(state.wall_mat, [0.0] * 6)
+        floor_absorption = MATERIALS.get(state.floor_mat, [0.0] * 6)
+        ceiling_absorption = MATERIALS.get(state.ceil_mat, [0.0] * 6)
+        
+        lines.append("  Frequency | Absorption | RT60 (s)")
+        lines.append("  " + "-" * 36)
+        for idx, freq in enumerate(FREQ_BANDS):
+            if total_area > 0:
+                weighted = (
+                    wall_area * wall_absorption[idx]
+                    + floor_area * floor_absorption[idx]
+                    + ceiling_area * ceiling_absorption[idx]
+                ) / total_area
+            else:
+                weighted = 0.0
+            # Calculate RT60 for this band
+            min_rt60 = 0.2
+            max_rt60 = 3.0
+            rt60 = min_rt60 + (max_rt60 - min_rt60) * (1.0 - weighted)
+            lines.append("  {:>5} Hz  |   {:.3f}    |  {:.2f}".format(freq, weighted, rt60))
+        
+        lines.append("")
+        lines.append("  Material contributions:")
+        lines.append("    Walls   : {} ({} m2)".format(state.wall_mat, wall_area))
+        lines.append("    Floor   : {} ({} m2)".format(state.floor_mat, floor_area))
+        lines.append("    Ceiling : {} ({} m2)".format(state.ceil_mat, ceiling_area))
 
     lines += ["", sep, "  End of Report -- Acoustica", sep]
     

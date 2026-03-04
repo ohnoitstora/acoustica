@@ -18,7 +18,7 @@ from .export_report import export_report, REPORTS_DIR
 from .material_builder import MaterialBuilderScreen
 from .menu import MainMenuScreen
 from .mixer import AcousticMixerPanel, AcousticMixerScreen
-from .modal import HowItWorksModal, ListenModal
+from .modal import ExportDropdownModal, HowItWorksModal, ListenModal
 from .physics import rt60_quality
 from .reports import ReportsScreen
 from .state import AcousticState
@@ -221,7 +221,7 @@ class AnalyzerScreen(Screen):
 
     @on(Button.Pressed, "#btn-export")
     def action_export(self):
-        self._do_export()
+        self.app.push_screen(ExportDropdownModal(self._state, self._do_export_with_options))
 
     @on(Button.Pressed, "#btn-listen")
     def action_listen(self):
@@ -307,6 +307,10 @@ class AnalyzerScreen(Screen):
 
     def _do_export(self):
         export_report(self._state, self.app.notify)
+
+    def _do_export_with_options(self, options: dict):
+        """Export report with selected options."""
+        export_report(self._state, self.app.notify, options=options)
 
     def _do_listen(self):
         """Open the Listen modal for audio comparison."""

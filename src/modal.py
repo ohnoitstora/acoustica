@@ -11,7 +11,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Button, Label, Static
+from textual.widgets import Button, Checkbox, Label, Static
 
 from .audio_engine import generate_room_audio, save_audio_pair, save_wav
 from .constants import FREQ_BANDS
@@ -259,4 +259,79 @@ class ListenModal(ModalScreen):
 
     @on(Button.Pressed, "#btn-close")
     def close(self):
+        self.dismiss()
+
+
+class ExportDropdownModal(ModalScreen):
+    """Modal dropdown for export options with checkboxes."""
+
+    DEFAULT_CSS = """
+    ExportDropdownModal {
+        align: center top;
+        padding-top: 4;
+    }
+    ExportDropdownModal > Container {
+        width: 40;
+        height: auto;
+        border: thick $accent;
+        background: $surface;
+        padding: 1 2;
+    }
+    ExportDropdownModal > Container > Label#title {
+        text-style: bold;
+        color: $accent;
+        margin-bottom: 1;
+    }
+    ExportDropdownModal .checkbox-section {
+        margin-bottom: 1;
+    }
+    ExportDropdownModal .export-checkbox {
+        margin-bottom: 1;
+    }
+    ExportDropdownModal > Container > Horizontal {
+        margin-top: 1;
+        align: center middle;
+    }
+    ExportDropdownModal > Container > Horizontal > Button {
+        margin: 0 1;
+        min-width: 12;
+    }
+    """
+    BINDINGS = [Binding("escape", "dismiss", "Cancel")]
+
+    def __init__(self, state, export_callback):
+        super().__init__()
+        self._state = state
+        self._export_callback = export_callback
+
+    def compose(self) -> ComposeResult:
+        with Container():
+            yield Label("📄 EXPORT OPTIONS", id="title")
+            with Vertical(classes="checkbox-section"):
+                yield Checkbox("Calculations (RT60, Modes)", value=True, id="chk-calculations", classes="export-checkbox")
+                yield Checkbox("Pressure Map", value=True, id="chk-pressure", classes="export-checkbox")
+                yield Checkbox("Mixer Info", value=True, id="chk-mixer", classes="export-checkbox")
+            with Horizontal():
+                yield Button("Export", id="btn-do-export", variant="primary")
+                yield Button("Cancel", id="btn-cancel-export")
+
+    @on(Button.Pressed, "#btn-do-export")
+    def do_export(self):
+        """Perform the export with selected options."""
+        calc_checked = self.query_one("#chk-calculations", Checkbox).value
+        pressure_checked = self.query_one("#chk-pressure", Checkbox).value
+        mixer_checked = self.query_one("#chk-mixer", Checkbox).value
+        
+        options = {
+            "calculations": calc_checked,
+            "pressure_map": pressure_checked,
+            "mixer": mixer_checked,
+        }
+        
+        self.dismiss()
+        if self._export_callback:
+            self._export_callback(options)
+
+    @on(Button.Pressed, "#btn-cancel-export")
+    def cancel(self):
         self.dismiss()
