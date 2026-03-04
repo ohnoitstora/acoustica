@@ -284,7 +284,6 @@ class AcousticMixerPanel(Widget):
             self._suspend_material_sync = True
             self.query_one("#sel-material-preset", Select).value = ""
             self._suspend_material_sync = False
-            self.app.notify("Material presets are disabled in embedded mixer view.", severity="information", timeout=3)
             return
 
         material_name = str(event.value)
@@ -297,6 +296,8 @@ class AcousticMixerPanel(Widget):
     @on(Input.Changed)
     def _on_input_changed(self, event: Input.Changed) -> None:
         """Handle direct input value changes - updates graph immediately."""
+        if self._is_embedded:
+            return
         input_id = event.input.id
         if input_id and input_id.startswith("input-slider-"):
             try:
@@ -317,6 +318,8 @@ class AcousticMixerPanel(Widget):
     @on(Button.Pressed, ".slider-btn")
     def _on_slider_btn(self, event: Button.Pressed) -> None:
         """Handle +/- button presses - updates graph immediately."""
+        if self._is_embedded:
+            return
         btn_id = event.button.id or ""
         if btn_id.startswith("inc-"):
             idx = int(btn_id.split("-")[-1])
@@ -340,6 +343,8 @@ class AcousticMixerPanel(Widget):
     @on(Button.Pressed, ".freq-btn")
     def _on_freq_btn(self, event: Button.Pressed) -> None:
         """Handle frequency band selection buttons."""
+        if self._is_embedded:
+            return
         btn_id = event.button.id or ""
 
         # Update button styles
@@ -389,6 +394,8 @@ class AcousticMixerPanel(Widget):
     @on(Button.Pressed, "#btn-reset-sliders")
     def _reset_sliders(self):
         """Reset all sliders to 0.0 (fully reflective)."""
+        if self._is_embedded:
+            return
         self._absorption_values = [0.0] * 6
         self._current_material = ""
         self._suspend_material_sync = True
@@ -399,6 +406,8 @@ class AcousticMixerPanel(Widget):
     @on(Button.Pressed, "#btn-flat-mid")
     def _flat_mid_sliders(self):
         """Set all sliders to 0.5 (medium absorption)."""
+        if self._is_embedded:
+            return
         self._absorption_values = [0.5] * 6
         self._current_material = ""
         self._suspend_material_sync = True

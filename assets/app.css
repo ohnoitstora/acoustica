@@ -825,6 +825,34 @@ ReportViewModal {
     display: none;
 }
 
+.mixer-embed .slider-btn,
+.mixer-embed .slider-input {
+    display: none;
+}
+
+.mixer-embed .slider-bar {
+    color: #6b5f7a;
+    text-style: dim;
+}
+
+.mixer-embed .slider-value {
+    color: #6b5f7a;
+}
+
+.mixer-embed .slider-freq-label {
+    color: #9180a8;
+}
+
+.mixer-embed #freq-selector,
+.mixer-embed .freq-selector-label,
+.mixer-embed .freq-btn {
+    display: none;
+}
+
+.mixer-embed .slider-control-row {
+    height: 1;
+}
+
 #btn-reset-sliders, #btn-flat-mid {
     min-width: 14;
     height: 3;
