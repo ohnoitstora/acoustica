@@ -65,6 +65,11 @@ Screen {
     margin-top: 1;
     margin-bottom: 1;
 }
+
+#mixer-panel {
+    height: 1fr;
+    margin-top: 1;
+}
 #center-panel {
     width: 1fr;
     border: solid #2e1a52;
@@ -679,20 +684,20 @@ ReportViewModal {
     content-align: right middle;
 }
 
-#mixer-body {
+#mixer-body, #mixer-panel {
     layout: horizontal;
     height: 1fr;
 }
 
 #mixer-sliders-panel {
     width: 38;
-    border: solid #2e1a52;
-    background: #18102e;
-    padding: 0 1;
 }
 
 #mixer-graph-panel {
     width: 1fr;
+}
+
+.mixer-panel {
     border: solid #2e1a52;
     background: #18102e;
     padding: 0 1;

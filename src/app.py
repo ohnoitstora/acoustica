@@ -13,11 +13,11 @@ from textual.screen import Screen
 from textual.widgets import Button, Footer, Input, Label, Select
 
 from .calculator import TreatmentCalculatorScreen
-from .constants import MATERIAL_NAMES
+from .constants import MATERIAL_NAMES, MATERIALS
 from .export_report import export_report, REPORTS_DIR
 from .material_builder import MaterialBuilderScreen
 from .menu import MainMenuScreen
-from .mixer import AcousticMixerScreen
+from .mixer import AcousticMixerPanel, AcousticMixerScreen
 from .modal import HowItWorksModal, ListenModal
 from .physics import rt60_quality
 from .reports import ReportsScreen
@@ -56,7 +56,11 @@ class AnalyzerScreen(Screen):
                 left.border_title = "ROOM SETTINGS"
                 yield Label("VIEW", classes="section-title")
                 yield Select(
-                    [("Room View", "room"), ("Pressure Map", "map")],
+                    [
+                        ("Room View", "room"),
+                        ("Pressure Map", "map"),
+                        ("Acoustic Mixer", "mixer"),
+                    ],
                     value=self._state.view_mode,
                     id="sel-view-mode",
                 )
@@ -101,6 +105,7 @@ class AnalyzerScreen(Screen):
                 yield RoomCanvas(self._state)
                 yield Label("", id="map-mode-label")
                 yield Label("no source -- click inside room to place", id="source-coord")
+                yield AcousticMixerPanel()
             with Vertical(id="right-panel") as right:
                 right.border_title = "ANALYSIS RESULTS"
                 yield Label("RT60  (Sabine)", classes="section-title")
@@ -123,6 +128,26 @@ class AnalyzerScreen(Screen):
     def _update_map_controls(self):
         controls = self.query_one("#map-controls", Container)
         controls.display = self._state.view_mode == "map"
+
+    def _update_view_panels(self):
+        view_mode = self._state.view_mode
+        map_label = self.query_one("#map-mode-label", Label)
+        map_label.display = view_mode == "map"
+        canvas_hint = self.query_one("#canvas-hint", Label)
+        canvas_hint.display = view_mode == "room"
+        source_label = self.query_one("#source-coord", Label)
+        source_label.display = view_mode == "room"
+        room_canvas = self.query_one(RoomCanvas)
+        room_canvas.display = view_mode in ("room", "map")
+        mixer_panel = self.query_one(AcousticMixerPanel)
+        mixer_panel.display = view_mode == "mixer"
+        center_panel = self.query_one("#center-panel", Vertical)
+        if view_mode == "mixer":
+            center_panel.border_title = "ACOUSTIC MIXER"
+        elif view_mode == "map":
+            center_panel.border_title = "PRESSURE MAP"
+        else:
+            center_panel.border_title = "ROOM CANVAS -- Top-Down View"
 
     @on(Input.Submitted)
     @on(Input.Changed)
@@ -212,6 +237,7 @@ class AnalyzerScreen(Screen):
     def _refresh_results(self):
         state = self._state
         self._update_map_controls()
+        self._update_view_panels()
         self.query_one("#lbl-vol", Label).update("Volume:  {:.2f} m3".format(state.volume))
         self.query_one("#lbl-area", Label).update("Area:    {:.2f} m2".format(state.surface_area))
         rt500 = state.rt60_500
@@ -222,14 +248,56 @@ class AnalyzerScreen(Screen):
             txt = "  ".join("{:.0f}Hz".format(f) for f in freqs) if freqs else "---"
             self.query_one("#mode-{}".format(dim.lower()), Label).update(txt)
         self.query_one(BarChart).refresh()
-        self.query_one(RoomCanvas).refresh()
-        canvas = self.query_one(RoomCanvas)
-        self.query_one("#source-coord", Label).update(canvas.source_info)
+        room_canvas = self.query_one(RoomCanvas)
+        room_canvas.refresh()
+        self.query_one("#source-coord", Label).update(room_canvas.source_info)
         map_label = self.query_one("#map-mode-label", Label)
         if state.view_mode == "map":
             map_label.update("Map mode: {}".format(state.map_mode.replace("-", " ")))
         else:
             map_label.update("")
+        if state.view_mode == "mixer":
+            material_label = self._resolve_mixer_material_label()
+            absorption_values = self._compute_mixer_absorption()
+            mixer_panel = self.query_one(AcousticMixerPanel)
+            mixer_panel.set_absorption_values(absorption_values, material_label)
+
+    def _resolve_mixer_material_label(self) -> str:
+        state = self._state
+        candidate = None
+        if state.wall_mat == state.floor_mat == state.ceil_mat:
+            candidate = state.wall_mat
+        elif state.wall_mat == state.floor_mat:
+            candidate = state.wall_mat
+        elif state.wall_mat == state.ceil_mat:
+            candidate = state.wall_mat
+        elif state.floor_mat == state.ceil_mat:
+            candidate = state.floor_mat
+        if candidate and candidate in MATERIALS:
+            return candidate
+        return ""
+
+    def _compute_mixer_absorption(self) -> list[float]:
+        state = self._state
+        width, length, height = state.width, state.length, state.height
+        wall_area = 2.0 * length * height + 2.0 * width * height
+        floor_area = width * length
+        ceiling_area = width * length
+        total_area = wall_area + floor_area + ceiling_area
+        if total_area <= 0:
+            return [0.0] * 6
+        wall_absorption = MATERIALS.get(state.wall_mat, [0.0] * 6)
+        floor_absorption = MATERIALS.get(state.floor_mat, [0.0] * 6)
+        ceiling_absorption = MATERIALS.get(state.ceil_mat, [0.0] * 6)
+        absorption_values = []
+        for idx in range(6):
+            weighted = (
+                wall_area * wall_absorption[idx]
+                + floor_area * floor_absorption[idx]
+                + ceiling_area * ceiling_absorption[idx]
+            )
+            absorption_values.append(weighted / total_area)
+        return absorption_values
 
     def _do_reset(self):
         self._state.width = 6.0
