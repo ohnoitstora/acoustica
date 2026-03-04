@@ -157,6 +157,8 @@ class AcousticMixerPanel(Widget):
         self._is_embedded = embedded
         if self._is_embedded:
             self.add_class("mixer-embed")
+        else:
+            self.remove_class("mixer-embed")
 
     def on_mount(self):
         """Initialize the graph with current values."""
@@ -165,9 +167,23 @@ class AcousticMixerPanel(Widget):
             self._disable_preset_controls()
         self._sync_focus_buttons()
 
+    def set_embedded(self, embedded: bool) -> None:
+        self._is_embedded = embedded
+        if self._is_embedded:
+            self.add_class("mixer-embed")
+            self._disable_preset_controls()
+        else:
+            self.remove_class("mixer-embed")
+            preset_label = self.query_one("#mixer-preset-controls", Container)
+            preset_label.display = True
+        self._sync_focus_buttons()
+
     def _disable_preset_controls(self) -> None:
         preset_label = self.query_one("#mixer-preset-controls", Container)
         preset_label.display = False
+        self._suspend_material_sync = True
+        self.query_one("#sel-material-preset", Select).value = ""
+        self._suspend_material_sync = False
 
     def _sync_focus_buttons(self) -> None:
         if self._highlight_band is None:
@@ -490,8 +506,12 @@ class AcousticMixerScreen(Screen):
         with Horizontal(id="mixer-header"):
             yield Label("  ⊞  ACOUSTIC MIXER", id="mixer-header-title")
             yield Label("Real-time decay visualization", id="mixer-header-subtitle")
-        yield AcousticMixerPanel(show_back_button=True)
+        yield AcousticMixerPanel(show_back_button=True, embedded=False)
         yield Footer()
+
+    def on_mount(self):
+        panel = self.query_one(AcousticMixerPanel)
+        panel.set_embedded(False)
 
     def action_export(self):
         panel = self.query_one(AcousticMixerPanel)
