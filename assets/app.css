@@ -70,6 +70,10 @@ Screen {
     height: 1fr;
     margin-top: 1;
 }
+
+.mixer-embed #mixer-panel {
+    margin-top: 0;
+}
 #center-panel {
     width: 1fr;
     border: solid #2e1a52;
@@ -751,6 +755,20 @@ ReportViewModal {
     content-align: right middle;
 }
 
+.mixer-back-inline {
+    height: 1;
+    min-width: 10;
+    background: #2e1a52;
+    color: #f0b429;
+    border: none;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+.mixer-back-inline:hover {
+    background: #4a2a80;
+}
+
 .slider-control-row {
     height: 3;
     layout: horizontal;
@@ -793,6 +811,18 @@ ReportViewModal {
     align: center middle;
     margin-top: 1;
     margin-bottom: 1;
+}
+
+.mixer-embed .mixer-controls {
+    display: none;
+}
+
+.mixer-embed #mixer-preset-controls {
+    display: none;
+}
+
+.mixer-embed .mixer-export-row {
+    display: none;
 }
 
 #btn-reset-sliders, #btn-flat-mid {
@@ -855,6 +885,90 @@ ReportViewModal {
     background: #2e1a52;
     color: #f0b429;
     border: solid #f0b429;
+    text-style: bold;
+}
+
+.freq-btn-all {
+    border: solid #f0b429;
+    color: #f0b429;
+}
+
+.freq-btn-all.freq-btn-active {
+    background: #1b140a;
+    border: solid #f0b429;
+    color: #f0b429;
+    text-style: bold;
+}
+
+.freq-btn-0 {
+    border: solid #ff6b6b;
+    color: #ff6b6b;
+}
+
+.freq-btn-1 {
+    border: solid #ffa94d;
+    color: #ffa94d;
+}
+
+.freq-btn-2 {
+    border: solid #ffe066;
+    color: #ffe066;
+}
+
+.freq-btn-3 {
+    border: solid #69db7c;
+    color: #69db7c;
+}
+
+.freq-btn-4 {
+    border: solid #74c0fc;
+    color: #74c0fc;
+}
+
+.freq-btn-5 {
+    border: solid #b197fc;
+    color: #b197fc;
+}
+
+.freq-btn-0.freq-btn-active {
+    background: #1b0a16;
+    border: solid #ff6b6b;
+    color: #ff6b6b;
+    text-style: bold;
+}
+
+.freq-btn-1.freq-btn-active {
+    background: #1b130a;
+    border: solid #ffa94d;
+    color: #ffa94d;
+    text-style: bold;
+}
+
+.freq-btn-2.freq-btn-active {
+    background: #1b160a;
+    border: solid #ffe066;
+    color: #ffe066;
+    text-style: bold;
+}
+
+.freq-btn-3.freq-btn-active {
+    background: #0d1b12;
+    border: solid #69db7c;
+    color: #69db7c;
+    text-style: bold;
+}
+
+.freq-btn-4.freq-btn-active {
+    background: #0a131b;
+    border: solid #74c0fc;
+    color: #74c0fc;
+    text-style: bold;
+}
+
+.freq-btn-5.freq-btn-active {
+    background: #140a1b;
+    border: solid #b197fc;
+    color: #b197fc;
     text-style: bold;
 }
 

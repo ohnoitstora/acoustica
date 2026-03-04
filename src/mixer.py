@@ -147,26 +147,53 @@ class DecayGraph(Widget):
 class AcousticMixerPanel(Widget):
     """Reusable mixer panel for sliders + decay graph."""
 
-    def __init__(self):
+    def __init__(self, show_back_button: bool = True, embedded: bool = False):
         super().__init__()
         self._absorption_values = [0.5] * 6
         self._current_material = ""
         self._highlight_band: int | None = None
         self._suspend_material_sync = False
+        self._show_back_button = show_back_button
+        self._is_embedded = embedded
+        if self._is_embedded:
+            self.add_class("mixer-embed")
+
+    def on_mount(self):
+        """Initialize the graph with current values."""
+        self._update_graph()
+        if self._is_embedded:
+            self._disable_preset_controls()
+        self._sync_focus_buttons()
+
+    def _disable_preset_controls(self) -> None:
+        preset_label = self.query_one("#mixer-preset-controls", Container)
+        preset_label.display = False
+
+    def _sync_focus_buttons(self) -> None:
+        if self._highlight_band is None:
+            active_id = "btn-freq-all"
+        else:
+            active_id = f"btn-freq-{self._highlight_band}"
+        for button in self.query(".freq-btn"):
+            button.remove_class("freq-btn-active")
+        self.query_one(f"#{active_id}", Button).add_class("freq-btn-active")
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="mixer-panel"):
             # Left panel - Controls
             with Vertical(id="mixer-sliders-panel", classes="mixer-panel") as sliders_panel:
+                if self._show_back_button:
+                    yield Button("← Back", id="btn-mixer-back", classes="mixer-back-inline")
                 sliders_panel.border_title = "FREQUENCY BANDS"
 
                 # Material selector
-                yield Label("Load Material Preset", classes="mixer-section-title")
-                yield Select(
-                    [("— Custom —", "")] + [(name, name) for name in MATERIAL_NAMES],
-                    value="",
-                    id="sel-material-preset",
-                )
+                with Container(id="mixer-preset-controls"):
+                    yield Label("Load Material Preset", classes="mixer-section-title")
+                    yield Select(
+                        [("— Custom —", "")] + [(name, name) for name in MATERIAL_NAMES],
+                        value="",
+                        id="sel-material-preset",
+                    )
 
                 yield Label("Adjust absorption per band", classes="mixer-section-title")
                 yield Label("(0 = reflective, 1 = fully absorptive)", classes="mixer-hint")
@@ -219,12 +246,12 @@ class AcousticMixerPanel(Widget):
                 # Frequency band selector buttons
                 with Horizontal(id="freq-selector"):
                     yield Label("Focus:", classes="freq-selector-label")
-                    yield Button("All", id="btn-freq-all", classes="freq-btn freq-btn-active")
+                    yield Button("All", id="btn-freq-all", classes="freq-btn freq-btn-active freq-btn-all")
                     for idx, label in enumerate(FREQ_LABELS):
                         yield Button(
                             label.strip(),
                             id=f"btn-freq-{idx}",
-                            classes="freq-btn",
+                            classes=f"freq-btn freq-btn-{idx}",
                         )
 
                 yield DecayGraph()
@@ -234,19 +261,16 @@ class AcousticMixerPanel(Widget):
                     yield Button("📄 Export Report", id="btn-export-mixer", variant="primary")
                     yield Label("", id="export-status")
 
-    def on_mount(self):
-        """Initialize the graph with current values."""
-        self._update_graph()
-
     def set_absorption_values(self, values: list[float], material_label: str | None = None) -> None:
         """Set absorption values and refresh the panel."""
         padded = values[:6] if len(values) >= 6 else values + [0.5] * (6 - len(values))
         self._absorption_values = padded
         self._current_material = material_label or ""
-        preset_select = self.query_one("#sel-material-preset", Select)
-        self._suspend_material_sync = True
-        preset_select.value = material_label or ""
-        self._suspend_material_sync = False
+        if not self._is_embedded:
+            preset_select = self.query_one("#sel-material-preset", Select)
+            self._suspend_material_sync = True
+            preset_select.value = material_label or ""
+            self._suspend_material_sync = False
         self._apply_slider_values()
 
     @on(Select.Changed, "#sel-material-preset")
@@ -255,6 +279,12 @@ class AcousticMixerPanel(Widget):
         if self._suspend_material_sync:
             return
         if event.value == Select.BLANK or event.value == "":
+            return
+        if self._is_embedded:
+            self._suspend_material_sync = True
+            self.query_one("#sel-material-preset", Select).value = ""
+            self._suspend_material_sync = False
+            self.app.notify("Material presets are disabled in embedded mixer view.", severity="information", timeout=3)
             return
 
         material_name = str(event.value)
@@ -325,6 +355,7 @@ class AcousticMixerPanel(Widget):
 
         graph = self.query_one(DecayGraph)
         graph.set_highlight(self._highlight_band)
+        self._sync_focus_buttons()
 
     @on(Button.Pressed, "#btn-export-mixer")
     def action_export(self):
@@ -334,7 +365,8 @@ class AcousticMixerPanel(Widget):
     @on(Button.Pressed, "#btn-mixer-back")
     def action_main_menu(self):
         """Return to main menu."""
-        self.app.pop_screen()
+        if self._show_back_button:
+            self.app.pop_screen()
 
     def _update_slider_display(self, idx: int, value: float) -> None:
         """Update the numeric display and bar for a slider."""
@@ -449,8 +481,7 @@ class AcousticMixerScreen(Screen):
         with Horizontal(id="mixer-header"):
             yield Label("  ⊞  ACOUSTIC MIXER", id="mixer-header-title")
             yield Label("Real-time decay visualization", id="mixer-header-subtitle")
-            yield Button("← Back", id="btn-mixer-back", classes="hdr-btn")
-        yield AcousticMixerPanel()
+        yield AcousticMixerPanel(show_back_button=True)
         yield Footer()
 
     def action_export(self):

@@ -105,7 +105,7 @@ class AnalyzerScreen(Screen):
                 yield RoomCanvas(self._state)
                 yield Label("", id="map-mode-label")
                 yield Label("no source -- click inside room to place", id="source-coord")
-                yield AcousticMixerPanel()
+                yield AcousticMixerPanel(show_back_button=False, embedded=True)
             with Vertical(id="right-panel") as right:
                 right.border_title = "ANALYSIS RESULTS"
                 yield Label("RT60  (Sabine)", classes="section-title")
@@ -257,25 +257,9 @@ class AnalyzerScreen(Screen):
         else:
             map_label.update("")
         if state.view_mode == "mixer":
-            material_label = self._resolve_mixer_material_label()
             absorption_values = self._compute_mixer_absorption()
             mixer_panel = self.query_one(AcousticMixerPanel)
-            mixer_panel.set_absorption_values(absorption_values, material_label)
-
-    def _resolve_mixer_material_label(self) -> str:
-        state = self._state
-        candidate = None
-        if state.wall_mat == state.floor_mat == state.ceil_mat:
-            candidate = state.wall_mat
-        elif state.wall_mat == state.floor_mat:
-            candidate = state.wall_mat
-        elif state.wall_mat == state.ceil_mat:
-            candidate = state.wall_mat
-        elif state.floor_mat == state.ceil_mat:
-            candidate = state.floor_mat
-        if candidate and candidate in MATERIALS:
-            return candidate
-        return ""
+            mixer_panel.set_absorption_values(absorption_values)
 
     def _compute_mixer_absorption(self) -> list[float]:
         state = self._state
