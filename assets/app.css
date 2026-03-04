@@ -773,17 +773,29 @@ ReportViewModal {
     height: 3;
     layout: horizontal;
     margin-bottom: 0;
+    align: left middle;
 }
 
 .slider-btn {
-    width: 3;
-    height: 1;
-    border: none;
-    background: #1a0e34;
+    width: 4;
+    height: 2;
+    border: solid #3d1a6e;
+    background: #2e1a52;
     color: #f0b429;
-    margin: 1 0;
+    margin: 0 1;
     padding: 0;
-    min-width: 3;
+    min-width: 4;
+    text-style: bold;
+}
+
+.slider-btn:hover {
+    background: #4a2a80;
+    border: solid #f0b429;
+}
+
+.slider-btn:focus {
+    background: #4a2a80;
+    border: double #f0b429;
 }
 
 .slider-input {

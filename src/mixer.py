@@ -147,6 +147,13 @@ class DecayGraph(Widget):
 class AcousticMixerPanel(Widget):
     """Reusable mixer panel for sliders + decay graph."""
 
+    DEFAULT_CSS = """
+    AcousticMixerPanel.mixer-embed .slider-btn,
+    AcousticMixerPanel.mixer-embed .slider-input {
+        display: none;
+    }
+    """
+
     def __init__(self, show_back_button: bool = True, embedded: bool = False):
         super().__init__()
         self._absorption_values = [0.5] * 6
@@ -155,16 +162,15 @@ class AcousticMixerPanel(Widget):
         self._suspend_material_sync = False
         self._show_back_button = show_back_button
         self._is_embedded = embedded
-        if self._is_embedded:
-            self.add_class("mixer-embed")
-        else:
-            self.remove_class("mixer-embed")
 
     def on_mount(self):
         """Initialize the graph with current values."""
         self._update_graph()
         if self._is_embedded:
+            self.add_class("mixer-embed")
             self._disable_preset_controls()
+        else:
+            self.remove_class("mixer-embed")
         self._sync_focus_buttons()
 
     def set_embedded(self, embedded: bool) -> None:
@@ -230,7 +236,7 @@ class AcousticMixerPanel(Widget):
                                     classes="slider-value",
                                 )
                             with Horizontal(classes="slider-control-row"):
-                                yield Button("-", id=f"dec-slider-{idx}", classes="slider-btn")
+                                yield Button("−", id=f"dec-slider-{idx}", classes="slider-btn")
                                 yield Input(
                                     f"{self._absorption_values[idx]:.2f}",
                                     id=f"input-slider-{idx}",
