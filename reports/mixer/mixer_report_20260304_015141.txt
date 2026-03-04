@@ -1,0 +1,25 @@
+================================================================
+  ACOUSTICA -- ACOUSTIC MIXER REPORT
+  Generated: 2026-03-04 01:51:41
+================================================================
+
+ABSORPTION COEFFICIENTS
+--------------------------------------------
+  Frequency  |  Absorption  |  RT60 (sec)
+--------------------------------------------
+    125 Hz   |     0.59     |    1.35
+    250 Hz   |     0.00     |    3.00
+    500 Hz   |     0.35     |    2.02
+   1000 Hz   |     0.19     |    2.47
+   2000 Hz   |     0.82     |    0.70
+   4000 Hz   |     0.19     |    2.47
+
+DECAY CURVE ANALYSIS
+--------------------------------------------
+  The graph shows sound level decay from 0 dB to -60 dB.
+  Higher absorption = faster decay (shorter reverb).
+  Lower absorption = slower decay (longer reverb).
+
+================================================================
+  End of Mixer Report -- Acoustica
+================================================================

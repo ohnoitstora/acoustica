@@ -1,0 +1,880 @@
+Screen {
+    background: #0e0a18;
+}
+#header {
+    height: 3;
+    background: #0a061a;
+    border-bottom: solid #3d1a6e;
+    layout: horizontal;
+    padding: 0 1;
+    align-vertical: middle;
+}
+#header-title {
+    color: #f0b429;
+    text-style: bold;
+    width: 1fr;
+    content-align: left middle;
+}
+#header-subtitle {
+    color: #6b5f7a;
+    width: auto;
+    margin-right: 2;
+    content-align: right middle;
+}
+.hdr-btn {
+    height: 1;
+    min-width: 14;
+    border: none;
+    margin: 0 1 0 0;
+}
+#btn-how {
+    background: #2e1a52;
+    color: #c4b5fd;
+}
+#btn-reset {
+    background: #2a1206;
+    color: #ffb74d;
+}
+#btn-export {
+    background: #061428;
+    color: #82b1ff;
+}
+#btn-how:hover {
+    background: #4a2a80;
+}
+#btn-reset:hover {
+    background: #3d1a08;
+}
+#btn-export:hover {
+    background: #0c2040;
+}
+#body {
+    layout: horizontal;
+    height: 1fr;
+}
+#left-panel {
+    width: 36;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 0 1;
+}
+#map-controls {
+    border: solid #3d1a6e;
+    background: #0a0616;
+    padding: 0 1;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+#center-panel {
+    width: 1fr;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 0 1;
+}
+#right-panel {
+    width: 42;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 0 1;
+}
+.section-title {
+    color: #f0b429;
+    text-style: bold;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+.dim-row {
+    height: 3;
+    layout: horizontal;
+    margin-bottom: 0;
+}
+.dim-label {
+    width: 8;
+    color: #9180a8;
+    content-align: left middle;
+}
+.dim-input {
+    width: 10;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5a623;
+}
+.dim-btn {
+    width: 3;
+    height: 1;
+    border: none;
+    background: #1a0e34;
+    color: #f0b429;
+    margin: 1 0;
+    padding: 0;
+    min-width: 3;
+}
+.mat-row {
+    height: 3;
+    layout: horizontal;
+    margin-bottom: 0;
+}
+.mat-label {
+    width: 9;
+    color: #9180a8;
+    content-align: left middle;
+}
+Select {
+    width: 1fr;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5eeff;
+}
+.geo-box {
+    border: solid #3d1a6e;
+    background: #0a0616;
+    padding: 0 1;
+    margin-top: 1;
+    height: auto;
+}
+.geo-label {
+    color: #9180a8;
+}
+#canvas-hint {
+    color: #6b5f7a;
+    height: 1;
+    margin-bottom: 0;
+}
+#map-mode-label {
+    color: #c4b5fd;
+    height: 1;
+    margin-top: 0;
+}
+#source-coord {
+    color: #f0b429;
+    text-style: bold;
+    height: 1;
+    margin-top: 0;
+}
+#rt60-value {
+    color: #f0b429;
+    text-style: bold;
+    height: 1;
+}
+#rt60-quality {
+    color: #9180a8;
+    height: 1;
+    margin-bottom: 1;
+}
+.mode-row {
+    height: 1;
+    layout: horizontal;
+}
+.mode-dim-label {
+    width: 4;
+    text-style: bold;
+}
+.mode-dim-label.Length {
+    color: #f9a8d4;
+}
+.mode-dim-label.Width {
+    color: #c4b5fd;
+}
+.mode-dim-label.Height {
+    color: #fde68a;
+}
+.mode-freqs {
+    width: 1fr;
+    color: #e8d5ff;
+}
+Footer {
+    background: #0a061a;
+    color: #6b5f7a;
+}
+RoomCanvas {
+    height: 1fr;
+    border: solid $accent;
+    padding: 0 1;
+}
+BarChart {
+    height: 12;
+    border: solid $accent;
+    padding: 0 1;
+}
+HowItWorksModal {
+    align: center middle;
+}
+HowItWorksModal > Container {
+    width: 68;
+    height: 90%;
+    border: thick $accent;
+    background: $surface;
+    padding: 1 2;
+}
+HowItWorksModal > Container > Label#title {
+    text-style: bold;
+    color: $accent;
+    margin-bottom: 1;
+}
+HowItWorksModal > Container > ScrollableContainer {
+    height: 1fr;
+}
+HowItWorksModal > Container > Button {
+    margin-top: 1;
+    width: 14;
+}
+
+/* Main Menu Styles */
+#menu-container {
+    align: center middle;
+    width: auto;
+    height: auto;
+}
+
+#menu-title {
+    color: #f0b429;
+    text-style: bold;
+    content-align: center middle;
+    margin-bottom: 1;
+    height: 3;
+}
+
+#menu-subtitle {
+    color: #c4b5fd;
+    content-align: center middle;
+    margin-bottom: 1;
+}
+
+#menu-spacer {
+    height: 2;
+}
+
+#menu-spacer-bottom {
+    height: 1;
+}
+
+#btn-start,
+#btn-materials,
+#btn-reports,
+#btn-calculator,
+#btn-mixer,
+#btn-exit,
+#btn-back {
+    min-width: 36;
+    height: 3;
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+    text-style: bold;
+    content-align: center middle;
+    padding: 0 2;
+}
+
+#btn-start:hover,
+#btn-materials:hover,
+#btn-reports:hover,
+#btn-calculator:hover,
+#btn-mixer:hover,
+#btn-exit:hover,
+#btn-back:hover {
+    background: #4a2a80;
+    border: solid #f0b429;
+}
+
+#btn-start:focus,
+#btn-materials:focus,
+#btn-reports:focus,
+#btn-calculator:focus,
+#btn-mixer:focus,
+#btn-exit:focus,
+#btn-back:focus {
+    background: #4a2a80;
+    border: double #f0b429;
+}
+
+#menu-hint {
+    color: #6b5f7a;
+    text-style: italic;
+    content-align: center middle;
+    margin-top: 1;
+}
+
+/* Reports Screen Styles */
+#reports-container {
+    align: center middle;
+    width: 80;
+    height: auto;
+}
+
+#reports-title {
+    color: #f0b429;
+    text-style: bold;
+    content-align: center middle;
+    margin-bottom: 0;
+}
+
+#reports-subtitle {
+    color: #9180a8;
+    content-align: center middle;
+    margin-bottom: 1;
+}
+
+#reports-spacer {
+    height: 1;
+}
+
+#reports-spacer-bottom {
+    height: 1;
+}
+
+#reports-tabs {
+    height: auto;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 1;
+}
+
+.report-tab-content {
+    height: auto;
+    padding: 1;
+}
+
+.report-count {
+    color: #c4b5fd;
+    height: 1;
+    margin-bottom: 1;
+}
+
+.reports-list {
+    height: 12;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5eeff;
+}
+
+.pagination-row {
+    height: 3;
+    layout: horizontal;
+    align: center middle;
+    margin-top: 1;
+}
+
+.pagination-btn {
+    width: 10;
+    min-width: 10;
+    height: 1;
+    border: none;
+    background: #2e1a52;
+    color: #f0b429;
+}
+
+.pagination-btn:disabled {
+    background: #1a0e34;
+    color: #6b5f7a;
+}
+
+.pagination-btn:hover {
+    background: #4a2a80;
+}
+
+.pagination-label {
+    width: 14;
+    content-align: center middle;
+    color: #f5eeff;
+}
+
+/* Tab styles */
+TabbedContent {
+    background: #0a0616;
+}
+
+TabPane {
+    background: #18102e;
+}
+
+ReportViewModal {
+    align: center middle;
+}
+
+/* Report View Modal Styles */
+#report-modal-container {
+    width: 80;
+    height: 85%;
+    border: thick #f0b429;
+    background: #18102e;
+    padding: 1 2;
+}
+
+#report-modal-title {
+    color: #f0b429;
+    text-style: bold;
+    content-align: center middle;
+    margin-bottom: 1;
+}
+
+#report-modal-scroll, .report-scroll {
+    height: 1fr;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    padding: 1;
+}
+
+.report-text {
+    color: #e8d5ff;
+}
+
+.pressure-map-text {
+    color: #f0b429; /* Gold/Yellow same as analyzer labels */
+}
+
+#btn-close-report {
+    margin-top: 1;
+    min-width: 14;
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+}
+
+/* Treatment Calculator Screen Styles */
+#calc-header {
+    height: 3;
+    background: #0a061a;
+    border-bottom: solid #3d1a6e;
+    layout: horizontal;
+    padding: 0 1;
+    align-vertical: middle;
+}
+
+#calc-header-title {
+    color: #f0b429;
+    text-style: bold;
+    width: 1fr;
+    content-align: left middle;
+}
+
+#calc-header-subtitle {
+    color: #6b5f7a;
+    width: auto;
+    margin-right: 2;
+    content-align: right middle;
+}
+
+#calc-body {
+    height: 1fr;
+    padding: 1 2;
+}
+
+#calc-grid {
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 1fr 1fr;
+    grid-gutter: 2;
+    height: 100%;
+}
+
+#calc-inputs {
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 1 2;
+}
+
+#calc-results {
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 1 2;
+}
+
+.calc-section-title {
+    color: #f0b429;
+    text-style: bold;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
+.calc-input {
+    width: 100%;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5a623;
+    margin-bottom: 1;
+}
+
+#calc-inputs Select {
+    width: 100%;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5eeff;
+}
+
+.calc-result-label {
+    color: #9180a8;
+    margin-top: 1;
+}
+
+.calc-result-value {
+    color: #f0b429;
+    text-style: bold;
+    height: 2;
+}
+
+#calc-spacer {
+    height: 1fr;
+}
+
+#calc-hint {
+    color: #6b5f7a;
+    text-style: italic;
+    content-align: center middle;
+}
+
+#btn-export-plan {
+    margin-top: 1;
+    min-width: 20;
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+    text-style: bold;
+}
+
+#btn-export-plan:hover {
+    background: #4a2a80;
+}
+
+/* Material Builder Screen Styles */
+#material-builder-container {
+    align: center middle;
+    width: 70;
+    height: auto;
+}
+
+#builder-title {
+    color: #f0b429;
+    text-style: bold;
+    content-align: center middle;
+    margin-bottom: 1;
+}
+
+#builder-subtitle {
+    color: #c4b5fd;
+    content-align: center middle;
+    margin-bottom: 1;
+}
+
+#builder-spacer {
+    height: 1;
+}
+
+.builder-spacer-small {
+    height: 1;
+}
+
+.name-status {
+    height: 1;
+    content-align: center middle;
+    margin-top: 0;
+}
+
+#builder-form {
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 1 2;
+    margin-bottom: 1;
+}
+
+.builder-section-title {
+    color: #f0b429;
+    text-style: bold;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
+.builder-hint {
+    color: #6b5f7a;
+    text-style: italic;
+    margin-bottom: 1;
+}
+
+#freq-grid {
+    layout: grid;
+    grid-size: 3;
+    grid-columns: 1fr 1fr 1fr;
+    grid-gutter: 1;
+    height: auto;
+}
+
+.freq-input-group {
+    padding: 0 1;
+}
+
+.freq-label {
+    color: #9180a8;
+    content-align: center middle;
+    height: 1;
+}
+
+.freq-input {
+    width: 100%;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5a623;
+    content-align: center middle;
+}
+
+#builder-status {
+    height: 1;
+    content-align: center middle;
+    margin-top: 1;
+}
+
+#builder-buttons {
+    layout: horizontal;
+    align: center middle;
+    height: auto;
+}
+
+#btn-save {
+    min-width: 16;
+    height: 3;
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+    text-style: bold;
+    margin-left: 2;
+}
+
+#btn-save:hover {
+    background: #4a2a80;
+}
+
+#btn-export {
+    min-width: 16;
+    height: 3;
+    background: #1a3a52;
+    color: #82b1ff;
+    border: solid #82b1ff;
+    text-style: bold;
+    margin-left: 2;
+}
+
+#btn-export:hover {
+    background: #2a5a80;
+}
+
+/* Acoustic Mixer Screen Styles */
+#mixer-header {
+    height: 3;
+    background: #0a061a;
+    border-bottom: solid #3d1a6e;
+    layout: horizontal;
+    padding: 0 1;
+    align-vertical: middle;
+}
+
+#mixer-header-title {
+    color: #f0b429;
+    text-style: bold;
+    width: 1fr;
+    content-align: left middle;
+}
+
+#mixer-header-subtitle {
+    color: #6b5f7a;
+    width: auto;
+    margin-right: 2;
+    content-align: right middle;
+}
+
+#mixer-body {
+    layout: horizontal;
+    height: 1fr;
+}
+
+#mixer-sliders-panel {
+    width: 38;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 0 1;
+}
+
+#mixer-graph-panel {
+    width: 1fr;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 0 1;
+}
+
+.mixer-section-title {
+    color: #f0b429;
+    text-style: bold;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
+.mixer-hint {
+    color: #6b5f7a;
+    text-style: italic;
+    margin-bottom: 1;
+}
+
+.mixer-graph-hint {
+    color: #6b5f7a;
+    text-style: italic;
+    margin-bottom: 0;
+    height: 1;
+}
+
+#sliders-container {
+    height: 1fr;
+    padding: 0 1;
+}
+
+.slider-group {
+    margin-bottom: 1;
+    padding: 0 1;
+}
+
+.slider-header {
+    height: 1;
+    layout: horizontal;
+    margin-bottom: 0;
+}
+
+.slider-freq-label {
+    width: 1fr;
+    color: #f0b429;
+    text-style: bold;
+}
+
+.slider-value {
+    width: 6;
+    color: #f5a623;
+    content-align: right middle;
+}
+
+.slider-control-row {
+    height: 3;
+    layout: horizontal;
+    margin-bottom: 0;
+}
+
+.slider-btn {
+    width: 3;
+    height: 1;
+    border: none;
+    background: #1a0e34;
+    color: #f0b429;
+    margin: 1 0;
+    padding: 0;
+    min-width: 3;
+}
+
+.slider-input {
+    width: 1fr;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5a623;
+    content-align: center middle;
+}
+
+.slider-bar-container {
+    height: 1;
+    margin-top: 0;
+}
+
+.slider-bar {
+    width: 100%;
+    color: #f0b429;
+    text-style: bold;
+}
+
+.mixer-controls {
+    height: 5;
+    layout: horizontal;
+    align: center middle;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+
+#btn-reset-sliders, #btn-flat-mid {
+    min-width: 14;
+    height: 3;
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+    text-style: bold;
+    margin: 0 1;
+}
+
+#btn-reset-sliders:hover, #btn-flat-mid:hover {
+    background: #4a2a80;
+}
+
+#btn-mixer-back {
+    min-width: 10;
+    height: 1;
+    background: #2e1a52;
+    color: #f0b429;
+    border: none;
+    text-style: bold;
+}
+
+#btn-mixer-back:hover {
+    background: #4a2a80;
+}
+
+/* Frequency selector buttons */
+#freq-selector {
+    height: 3;
+    layout: horizontal;
+    margin-bottom: 1;
+    align: left middle;
+}
+
+.freq-selector-label {
+    color: #9180a8;
+    margin-right: 1;
+    width: auto;
+}
+
+.freq-btn {
+    min-width: 5;
+    height: 1;
+    background: #1a0e34;
+    color: #6b5f7a;
+    border: solid #3d1a6e;
+    margin: 0 1;
+    padding: 0 1;
+}
+
+.freq-btn:hover {
+    background: #2e1a52;
+    color: #f0b429;
+}
+
+.freq-btn-active {
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+    text-style: bold;
+}
+
+/* Export row */
+.mixer-export-row {
+    height: 5;
+    layout: horizontal;
+    margin-top: 1;
+    align: center middle;
+}
+
+#btn-export-mixer {
+    min-width: 18;
+    height: 3;
+    background: #1a3a52;
+    color: #82b1ff;
+    border: solid #82b1ff;
+    text-style: bold;
+}
+
+#btn-export-mixer:hover {
+    background: #2a5a80;
+}
+
+#export-status {
+    color: #66bb6a;
+    margin-left: 2;
+}

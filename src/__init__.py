@@ -1,0 +1,1 @@
+"""Acoustica application package."""
