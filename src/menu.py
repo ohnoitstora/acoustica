@@ -26,6 +26,7 @@ class MainMenuScreen(Screen):
                     yield Label("Acoustic Reverb & Room Mode Analyzer", id="menu-subtitle")
                     yield Label("", id="menu-spacer")
                     yield Button("▶  Start Analysis", id="btn-start", variant="primary")
+                    yield Button("⚖️  Room Comparator", id="btn-comparator", variant="primary")
                     yield Button("⊞  Acoustic Mixer", id="btn-mixer", variant="primary")
                     yield Button("🔧  Material Builder", id="btn-materials", variant="primary")
                     yield Button("📄  View Saved Reports", id="btn-reports", variant="primary")
@@ -53,6 +54,10 @@ class MainMenuScreen(Screen):
     @on(Button.Pressed, "#btn-mixer")
     def open_mixer(self):
         self.app.push_screen("mixer")
+
+    @on(Button.Pressed, "#btn-comparator")
+    def open_comparator(self):
+        self.app.push_screen("side_by_side_comparator")
 
     @on(Button.Pressed, "#btn-exit")
     def exit_app(self):

@@ -1044,3 +1044,201 @@ ReportViewModal {
     color: #66bb6a;
     margin-left: 2;
 }
+
+/* Side-by-Side Room Comparator Styles */
+#sbs-comparator {
+    layout: vertical;
+    height: 100%;
+}
+
+#sbs-header {
+    height: 3;
+    background: #0a061a;
+    border-bottom: solid #3d1a6e;
+    layout: horizontal;
+    padding: 0 1;
+    align-vertical: middle;
+}
+
+#sbs-header-title {
+    color: #f0b429;
+    text-style: bold;
+    width: 1fr;
+    content-align: left middle;
+}
+
+#sbs-header-subtitle {
+    color: #6b5f7a;
+    width: auto;
+    margin-right: 2;
+    content-align: right middle;
+}
+
+#btn-sbs-back {
+    min-width: 10;
+    height: 1;
+    background: #2e1a52;
+    color: #f0b429;
+    border: none;
+    text-style: bold;
+}
+
+#btn-sbs-back:hover {
+    background: #4a2a80;
+}
+
+#sbs-body {
+    layout: horizontal;
+    height: 1fr;
+}
+
+#room-a-panel, #room-b-panel {
+    width: 1fr;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 0 1;
+}
+
+#room-a-panel {
+    border-right: solid #3d1a6e;
+}
+
+#room-a-title, #room-b-title {
+    color: #f0b429;
+    text-style: bold;
+    content-align: center middle;
+    height: 3;
+    background: #0a061a;
+    border-bottom: solid #3d1a6e;
+    margin: 0 -1 1 -1;
+}
+
+.room-input-section {
+    border: solid #3d1a6e;
+    background: #0a0616;
+    padding: 0 1;
+    margin-bottom: 1;
+    height: auto;
+}
+
+.sbs-section-title {
+    color: #f0b429;
+    text-style: bold;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
+.sbs-dim-row {
+    height: 3;
+    layout: horizontal;
+    margin-bottom: 0;
+}
+
+.sbs-dim-label {
+    width: 8;
+    color: #9180a8;
+    content-align: left middle;
+}
+
+.sbs-dim-input {
+    width: 10;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5a623;
+}
+
+.sbs-dim-btn {
+    width: 3;
+    height: 1;
+    border: none;
+    background: #1a0e34;
+    color: #f0b429;
+    margin: 1 0;
+    padding: 0;
+    min-width: 3;
+}
+
+.sbs-dim-btn:hover {
+    background: #2e1a52;
+}
+
+.sbs-mat-row {
+    height: 3;
+    layout: horizontal;
+    margin-bottom: 0;
+}
+
+.sbs-mat-label {
+    width: 9;
+    color: #9180a8;
+    content-align: left middle;
+}
+
+#room-a-panel Select, #room-b-panel Select {
+    width: 1fr;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5eeff;
+}
+
+.room-results-section {
+    border: solid #3d1a6e;
+    background: #0a0616;
+    padding: 0 1;
+    margin-top: 1;
+    height: auto;
+}
+
+#res-a-volume, #res-b-volume {
+    color: #c4b5fd;
+    margin-top: 1;
+}
+
+#res-a-rt60, #res-b-rt60 {
+    color: #f0b429;
+    text-style: bold;
+}
+
+#res-a-nrc, #res-b-nrc {
+    color: #82b1ff;
+}
+
+#res-a-schroeder, #res-b-schroeder {
+    color: #69db7c;
+    margin-bottom: 1;
+}
+
+#sbs-summary {
+    height: 3;
+    background: #0a061a;
+    border-top: solid #3d1a6e;
+    layout: horizontal;
+    padding: 0 1;
+    align-vertical: middle;
+}
+
+#sbs-summary-title {
+    color: #f0b429;
+    text-style: bold;
+    width: auto;
+    margin-right: 2;
+}
+
+#comp-rt60-diff, #comp-nrc-diff, #comp-vol-diff {
+    width: 1fr;
+    color: #e8d5ff;
+    content-align: center middle;
+}
+
+#btn-detailed {
+    min-width: 20;
+    height: 1;
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+    text-style: bold;
+}
+
+#btn-detailed:hover {
+    background: #4a2a80;
+}

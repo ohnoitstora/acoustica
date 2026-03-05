@@ -506,3 +506,313 @@ class SaveSnapshotModal(Screen):
             self.app.pop_screen()
         except Exception as e:
             self.app.notify(f"❌ Error saving: {e}", severity="error")
+
+
+class SideBySideComparatorScreen(Screen):
+    """Screen for side-by-side room comparison with direct input."""
+    
+    BINDINGS = [
+        Binding("q", "quit", "Quit"),
+        Binding("escape", "app.pop_screen", "Back"),
+    ]
+    
+    def __init__(self):
+        super().__init__()
+        # Room A defaults
+        self._room_a_width = 4.0
+        self._room_a_length = 5.0
+        self._room_a_height = 3.0
+        self._room_a_wall_mat = "Gypsum Board"
+        self._room_a_floor_mat = "Carpet (Thick)"
+        self._room_a_ceil_mat = "Gypsum Board"
+        
+        # Room B defaults
+        self._room_b_width = 8.0
+        self._room_b_length = 12.0
+        self._room_b_height = 4.0
+        self._room_b_wall_mat = "Concrete (Bare)"
+        self._room_b_floor_mat = "Hardwood Floor"
+        self._room_b_ceil_mat = "Concrete (Bare)"
+        
+        self._material_names = list(MATERIALS.keys())
+    
+    def compose(self) -> ComposeResult:
+        with Vertical(id="sbs-comparator"):
+            # Header
+            with Horizontal(id="sbs-header"):
+                yield Label("⚖️  ROOM COMPARATOR", id="sbs-header-title")
+                yield Label("Side-by-Side Analysis", id="sbs-header-subtitle")
+                yield Button("← Back", id="btn-sbs-back", variant="primary")
+            
+            # Main content - two room panels
+            with Horizontal(id="sbs-body"):
+                # Room A Panel
+                with Vertical(id="room-a-panel"):
+                    yield Label("🏠 ROOM A", id="room-a-title")
+                    
+                    with Vertical(classes="room-input-section"):
+                        yield Label("DIMENSIONS (m)", classes="sbs-section-title")
+                        
+                        with Horizontal(classes="sbs-dim-row"):
+                            yield Label("Width:", classes="sbs-dim-label")
+                            yield Button("-", id="dec-a-width", classes="sbs-dim-btn")
+                            yield Input(str(self._room_a_width), id="inp-a-width", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                            yield Button("+", id="inc-a-width", classes="sbs-dim-btn")
+                        
+                        with Horizontal(classes="sbs-dim-row"):
+                            yield Label("Length:", classes="sbs-dim-label")
+                            yield Button("-", id="dec-a-length", classes="sbs-dim-btn")
+                            yield Input(str(self._room_a_length), id="inp-a-length", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                            yield Button("+", id="inc-a-length", classes="sbs-dim-btn")
+                        
+                        with Horizontal(classes="sbs-dim-row"):
+                            yield Label("Height:", classes="sbs-dim-label")
+                            yield Button("-", id="dec-a-height", classes="sbs-dim-btn")
+                            yield Input(str(self._room_a_height), id="inp-a-height", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                            yield Button("+", id="inc-a-height", classes="sbs-dim-btn")
+                    
+                    with Vertical(classes="room-input-section"):
+                        yield Label("MATERIALS", classes="sbs-section-title")
+                        
+                        with Horizontal(classes="sbs-mat-row"):
+                            yield Label("Walls:", classes="sbs-mat-label")
+                            yield Select(
+                                [(m, m) for m in self._material_names],
+                                value=self._room_a_wall_mat,
+                                id="sel-a-wall"
+                            )
+                        
+                        with Horizontal(classes="sbs-mat-row"):
+                            yield Label("Floor:", classes="sbs-mat-label")
+                            yield Select(
+                                [(m, m) for m in self._material_names],
+                                value=self._room_a_floor_mat,
+                                id="sel-a-floor"
+                            )
+                        
+                        with Horizontal(classes="sbs-mat-row"):
+                            yield Label("Ceiling:", classes="sbs-mat-label")
+                            yield Select(
+                                [(m, m) for m in self._material_names],
+                                value=self._room_a_ceil_mat,
+                                id="sel-a-ceil"
+                            )
+                    
+                    with Vertical(classes="room-results-section"):
+                        yield Label("RESULTS", classes="sbs-section-title")
+                        yield Label("Volume: -- m³", id="res-a-volume")
+                        yield Label("RT60 @ 500Hz: -- s", id="res-a-rt60")
+                        yield Label("Room NRC: --", id="res-a-nrc")
+                        yield Label("Schroeder: -- Hz", id="res-a-schroeder")
+                
+                # Room B Panel
+                with Vertical(id="room-b-panel"):
+                    yield Label("🏢 ROOM B", id="room-b-title")
+                    
+                    with Vertical(classes="room-input-section"):
+                        yield Label("DIMENSIONS (m)", classes="sbs-section-title")
+                        
+                        with Horizontal(classes="sbs-dim-row"):
+                            yield Label("Width:", classes="sbs-dim-label")
+                            yield Button("-", id="dec-b-width", classes="sbs-dim-btn")
+                            yield Input(str(self._room_b_width), id="inp-b-width", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                            yield Button("+", id="inc-b-width", classes="sbs-dim-btn")
+                        
+                        with Horizontal(classes="sbs-dim-row"):
+                            yield Label("Length:", classes="sbs-dim-label")
+                            yield Button("-", id="dec-b-length", classes="sbs-dim-btn")
+                            yield Input(str(self._room_b_length), id="inp-b-length", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                            yield Button("+", id="inc-b-length", classes="sbs-dim-btn")
+                        
+                        with Horizontal(classes="sbs-dim-row"):
+                            yield Label("Height:", classes="sbs-dim-label")
+                            yield Button("-", id="dec-b-height", classes="sbs-dim-btn")
+                            yield Input(str(self._room_b_height), id="inp-b-height", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                            yield Button("+", id="inc-b-height", classes="sbs-dim-btn")
+                    
+                    with Vertical(classes="room-input-section"):
+                        yield Label("MATERIALS", classes="sbs-section-title")
+                        
+                        with Horizontal(classes="sbs-mat-row"):
+                            yield Label("Walls:", classes="sbs-mat-label")
+                            yield Select(
+                                [(m, m) for m in self._material_names],
+                                value=self._room_b_wall_mat,
+                                id="sel-b-wall"
+                            )
+                        
+                        with Horizontal(classes="sbs-mat-row"):
+                            yield Label("Floor:", classes="sbs-mat-label")
+                            yield Select(
+                                [(m, m) for m in self._material_names],
+                                value=self._room_b_floor_mat,
+                                id="sel-b-floor"
+                            )
+                        
+                        with Horizontal(classes="sbs-mat-row"):
+                            yield Label("Ceiling:", classes="sbs-mat-label")
+                            yield Select(
+                                [(m, m) for m in self._material_names],
+                                value=self._room_b_ceil_mat,
+                                id="sel-b-ceil"
+                            )
+                    
+                    with Vertical(classes="room-results-section"):
+                        yield Label("RESULTS", classes="sbs-section-title")
+                        yield Label("Volume: -- m³", id="res-b-volume")
+                        yield Label("RT60 @ 500Hz: -- s", id="res-b-rt60")
+                        yield Label("Room NRC: --", id="res-b-nrc")
+                        yield Label("Schroeder: -- Hz", id="res-b-schroeder")
+            
+            # Comparison summary bar
+            with Horizontal(id="sbs-summary"):
+                yield Label("📊 COMPARISON", id="sbs-summary-title")
+                yield Label("RT60 Diff: --", id="comp-rt60-diff")
+                yield Label("NRC Diff: --", id="comp-nrc-diff")
+                yield Label("Volume Diff: --", id="comp-vol-diff")
+                yield Button("📈 Detailed Analysis", id="btn-detailed", variant="primary")
+    
+    def on_mount(self):
+        self._update_calculations()
+    
+    def _get_room_values(self, room: str) -> tuple:
+        """Get current values for a room."""
+        prefix = "a" if room == "a" else "b"
+        
+        try:
+            width = float(self.query_one(f"#inp-{prefix}-width", Input).value)
+            length = float(self.query_one(f"#inp-{prefix}-length", Input).value)
+            height = float(self.query_one(f"#inp-{prefix}-height", Input).value)
+        except ValueError:
+            width = length = height = 0.0
+        
+        wall_mat = str(self.query_one(f"#sel-{prefix}-wall", Select).value)
+        floor_mat = str(self.query_one(f"#sel-{prefix}-floor", Select).value)
+        ceil_mat = str(self.query_one(f"#sel-{prefix}-ceil", Select).value)
+        
+        return width, length, height, wall_mat, floor_mat, ceil_mat
+    
+    def _update_calculations(self):
+        """Update all calculations for both rooms."""
+        # Calculate Room A
+        vals_a = self._get_room_values("a")
+        width_a, length_a, height_a, wall_a, floor_a, ceil_a = vals_a
+        
+        rt60_a = compute_rt60_per_band(width_a, length_a, height_a, wall_a, floor_a, ceil_a)
+        volume_a = width_a * length_a * height_a
+        schroeder_a = compute_schroeder_frequency(rt60_a, volume_a)
+        nrc_a = calculate_room_nrc(width_a, length_a, height_a, wall_a, floor_a, ceil_a, MATERIALS)
+        rt60_500_a = rt60_a[2] if len(rt60_a) > 2 else 0.0
+        
+        # Calculate Room B
+        vals_b = self._get_room_values("b")
+        width_b, length_b, height_b, wall_b, floor_b, ceil_b = vals_b
+        
+        rt60_b = compute_rt60_per_band(width_b, length_b, height_b, wall_b, floor_b, ceil_b)
+        volume_b = width_b * length_b * height_b
+        schroeder_b = compute_schroeder_frequency(rt60_b, volume_b)
+        nrc_b = calculate_room_nrc(width_b, length_b, height_b, wall_b, floor_b, ceil_b, MATERIALS)
+        rt60_500_b = rt60_b[2] if len(rt60_b) > 2 else 0.0
+        
+        # Update Room A results
+        self.query_one("#res-a-volume", Label).update(f"Volume: {volume_a:.2f} m³")
+        self.query_one("#res-a-rt60", Label).update(f"RT60 @ 500Hz: {rt60_500_a:.3f} s")
+        self.query_one("#res-a-nrc", Label).update(f"Room NRC: {nrc_a:.2f}")
+        self.query_one("#res-a-schroeder", Label).update(f"Schroeder: {schroeder_a:.1f} Hz")
+        
+        # Update Room B results
+        self.query_one("#res-b-volume", Label).update(f"Volume: {volume_b:.2f} m³")
+        self.query_one("#res-b-rt60", Label).update(f"RT60 @ 500Hz: {rt60_500_b:.3f} s")
+        self.query_one("#res-b-nrc", Label).update(f"Room NRC: {nrc_b:.2f}")
+        self.query_one("#res-b-schroeder", Label).update(f"Schroeder: {schroeder_b:.1f} Hz")
+        
+        # Update comparison
+        rt60_diff = rt60_500_b - rt60_500_a
+        nrc_diff = nrc_b - nrc_a
+        vol_diff = volume_b - volume_a
+        
+        rt60_sign = "+" if rt60_diff >= 0 else ""
+        nrc_sign = "+" if nrc_diff >= 0 else ""
+        vol_sign = "+" if vol_diff >= 0 else ""
+        
+        self.query_one("#comp-rt60-diff", Label).update(f"RT60 Diff: {rt60_sign}{rt60_diff:.3f}s")
+        self.query_one("#comp-nrc-diff", Label).update(f"NRC Diff: {nrc_sign}{nrc_diff:.2f}")
+        self.query_one("#comp-vol-diff", Label).update(f"Volume Diff: {vol_sign}{vol_diff:.1f}m³")
+    
+    @on(Button.Pressed, ".sbs-dim-btn")
+    def on_dim_btn(self, event: Button.Pressed):
+        """Handle dimension button presses."""
+        btn_id = event.button.id or ""
+        if not btn_id.startswith(("dec-", "inc-")):
+            return
+        
+        action = btn_id[:3]  # "dec" or "inc"
+        parts = btn_id[4:].split("-")  # e.g., ["a", "width"]
+        if len(parts) != 2:
+            return
+        
+        room, dim = parts
+        inp = self.query_one(f"#inp-{room}-{dim}", Input)
+        
+        try:
+            cur = float(inp.value)
+        except ValueError:
+            cur = 1.0
+        
+        delta = -0.5 if action == "dec" else 0.5
+        new_val = max(0.5, cur + delta)
+        inp.value = f"{new_val:.1f}"
+        self._update_calculations()
+    
+    @on(Input.Changed, ".sbs-dim-input")
+    def on_dim_input(self, event: Input.Changed):
+        """Handle dimension input changes."""
+        try:
+            val = float(event.value)
+            if val >= 0.1:
+                self._update_calculations()
+        except ValueError:
+            pass
+    
+    @on(Select.Changed)
+    def on_material_changed(self, event: Select.Changed):
+        """Handle material selection changes."""
+        if event.value != Select.BLANK:
+            self._update_calculations()
+    
+    @on(Button.Pressed, "#btn-sbs-back")
+    def go_back(self):
+        self.app.pop_screen()
+    
+    @on(Button.Pressed, "#btn-detailed")
+    def show_detailed(self):
+        """Show detailed comparison analysis."""
+        vals_a = self._get_room_values("a")
+        vals_b = self._get_room_values("b")
+        
+        width_a, length_a, height_a, wall_a, floor_a, ceil_a = vals_a
+        width_b, length_b, height_b, wall_b, floor_b, ceil_b = vals_b
+        
+        rt60_a = compute_rt60_per_band(width_a, length_a, height_a, wall_a, floor_a, ceil_a)
+        rt60_b = compute_rt60_per_band(width_b, length_b, height_b, wall_b, floor_b, ceil_b)
+        volume_a = width_a * length_a * height_a
+        volume_b = width_b * length_b * height_b
+        
+        lines = [
+            "📊 DETAILED ROOM COMPARISON",
+            "",
+            f"Room A: {width_a:.1f}×{length_a:.1f}×{height_a:.1f}m ({wall_a}, {floor_a}, {ceil_a})",
+            f"Room B: {width_b:.1f}×{length_b:.1f}×{height_b:.1f}m ({wall_b}, {floor_b}, {ceil_b})",
+            "",
+            "RT60 by Frequency Band:",
+            f"{'Freq':>6} {'Room A':>10} {'Room B':>10} {'Diff':>10}",
+            "-" * 40,
+        ]
+        
+        for i, freq in enumerate(FREQ_BANDS):
+            a_val = rt60_a[i] if i < len(rt60_a) else 0
+            b_val = rt60_b[i] if i < len(rt60_b) else 0
+            diff = b_val - a_val
+            lines.append(f"{freq:>6}Hz {a_val:>10.3f} {b_val:>10.3f} {diff:>+10.3f}")
+        
+        self.app.notify("\n".join(lines), timeout=10)

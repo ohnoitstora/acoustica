@@ -13,6 +13,7 @@ from textual.screen import Screen
 from textual.widgets import Button, Footer, Input, Label, Select
 
 from .calculator import TreatmentCalculatorScreen
+from .comparator import SideBySideComparatorScreen
 from .constants import MATERIAL_NAMES, MATERIALS
 from .export_report import export_report, REPORTS_DIR
 from .material_builder import MaterialBuilderScreen
@@ -336,6 +337,7 @@ class AcousticaApp(App):
         self.install_screen(ReportsScreen(), name="reports")
         self.install_screen(TreatmentCalculatorScreen(), name="calculator")
         self.install_screen(AcousticMixerScreen(), name="mixer")
+        self.install_screen(SideBySideComparatorScreen(), name="side_by_side_comparator")
         self.push_screen("menu")
 
 
