@@ -657,7 +657,7 @@ ReportViewModal {
     background: #4a2a80;
 }
 
-#btn-export {
+#btn-export-material {
     min-width: 16;
     height: 3;
     background: #1a3a52;
@@ -667,7 +667,7 @@ ReportViewModal {
     margin-left: 2;
 }
 
-#btn-export:hover {
+#btn-export-material:hover {
     background: #2a5a80;
 }
 

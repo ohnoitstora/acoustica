@@ -474,6 +474,13 @@ Understand how room geometry and materials affect sound quality before renovatio
 
 ---
 
+## 📋 Changelog
+
+### Latest
+- **Fix:** Resolved export button ID collision between the Analyzer header and Material Builder — the header `v Export` button now renders correctly with its intended dark-orange `.hdr-btn` style
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to:

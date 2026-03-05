@@ -95,7 +95,7 @@ class MaterialBuilderScreen(Screen):
                     # Buttons
                     with Horizontal(id="builder-buttons"):
                         yield Button("←  Back", id="btn-back", variant="primary")
-                        yield Button("📄  Export", id="btn-export", variant="primary")
+                        yield Button("📄  Export", id="btn-export-material", variant="primary")
                         yield Button("💾  Save", id="btn-save", variant="primary")
 
     @on(Select.Changed, "#select-material")
@@ -162,7 +162,7 @@ class MaterialBuilderScreen(Screen):
     def go_back(self):
         self.app.pop_screen()
 
-    @on(Button.Pressed, "#btn-export")
+    @on(Button.Pressed, "#btn-export-material")
     def export_material(self):
         """Export material as TXT report."""
         name_input = self.query_one("#input-name", Input)
