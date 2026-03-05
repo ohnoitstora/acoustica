@@ -826,18 +826,29 @@ class SideBySideComparatorScreen(Screen):
     def set_room_a_values(self, width: float, length: float, height: float,
                           wall_mat: str, floor_mat: str, ceil_mat: str):
         """Set Room A values from the main analyzer."""
-        # Update input values
-        self.query_one("#inp-a-width", Input).value = str(width)
-        self.query_one("#inp-a-length", Input).value = str(length)
-        self.query_one("#inp-a-height", Input).value = str(height)
-        
-        # Update material selections
-        self.query_one("#sel-a-wall", Select).value = wall_mat
-        self.query_one("#sel-a-floor", Select).value = floor_mat
-        self.query_one("#sel-a-ceil", Select).value = ceil_mat
-        
-        # Recalculate
-        self._update_calculations()
+        # Always update instance variables so compose() uses the correct values
+        # even when this is called before the screen has been mounted.
+        self._room_a_width = width
+        self._room_a_length = length
+        self._room_a_height = height
+        self._room_a_wall_mat = wall_mat
+        self._room_a_floor_mat = floor_mat
+        self._room_a_ceil_mat = ceil_mat
+
+        # If the screen is already mounted, update the DOM widgets directly.
+        try:
+            self.query_one("#inp-a-width", Input).value = str(width)
+            self.query_one("#inp-a-length", Input).value = str(length)
+            self.query_one("#inp-a-height", Input).value = str(height)
+            self.query_one("#sel-a-wall", Select).value = wall_mat
+            self.query_one("#sel-a-floor", Select).value = floor_mat
+            self.query_one("#sel-a-ceil", Select).value = ceil_mat
+            # Recalculate only when DOM is available
+            self._update_calculations()
+        except Exception:
+            # Screen not yet composed — compose() will use the updated instance
+            # variables above, so no further action needed here.
+            pass
 
     def _export_comparison_report(self):
         """Export the comparison results to a text file."""

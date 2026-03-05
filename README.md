@@ -430,6 +430,7 @@ acoustica/
     ├── app.py                    # Main Textual app & AnalyzerScreen
     ├── audio_engine.py           # Audio generation & convolution
     ├── calculator.py             # Treatment calculator screen
+    ├── comparator.py             # Side-by-side room comparator screen
     ├── constants.py              # Physics constants & material loader
     ├── export_report.py          # Report generation utilities
     ├── material_builder.py       # Material builder screen
@@ -477,6 +478,9 @@ Understand how room geometry and materials affect sound quality before renovatio
 ## 📋 Changelog
 
 ### Latest
+- **Fix:** Resolved `NoMatches` crash when opening the Room Comparator — `set_room_a_values()` was querying DOM widgets before the screen was composed. Values are now stored in instance variables first and the DOM is only updated when the screen is already mounted.
+
+### Previous
 - **Fix:** Resolved export button ID collision between the Analyzer header and Material Builder — the header `v Export` button now renders correctly with its intended dark-orange `.hdr-btn` style
 
 ---
