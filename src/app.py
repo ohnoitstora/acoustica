@@ -51,6 +51,7 @@ class AnalyzerScreen(Screen):
             yield Button("? How It Works", id="btn-how", classes="hdr-btn")
             yield Button("~ Reset", id="btn-reset", classes="hdr-btn")
             yield Button("v Export", id="btn-export", classes="hdr-btn")
+            yield Button("⚖️ Compare", id="btn-compare", classes="hdr-btn")
             yield Button("♫ Listen", id="btn-listen", classes="hdr-btn")
         with Horizontal(id="body"):
             with Vertical(id="left-panel") as left:
@@ -227,6 +228,22 @@ class AnalyzerScreen(Screen):
     @on(Button.Pressed, "#btn-listen")
     def action_listen(self):
         self._do_listen()
+
+    @on(Button.Pressed, "#btn-compare")
+    def action_compare(self):
+        """Open comparator with current room settings as Room A."""
+        # Get the comparator screen and set Room A values
+        comparator = self.app.get_screen("side_by_side_comparator")
+        if hasattr(comparator, 'set_room_a_values'):
+            comparator.set_room_a_values(
+                self._state.width,
+                self._state.length,
+                self._state.height,
+                self._state.wall_mat,
+                self._state.floor_mat,
+                self._state.ceil_mat
+            )
+        self.app.push_screen("side_by_side_comparator")
 
     def action_main_menu(self):
         self.app.pop_screen()

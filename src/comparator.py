@@ -670,7 +670,8 @@ class SideBySideComparatorScreen(Screen):
                 yield Label("RT60 Diff: --", id="comp-rt60-diff")
                 yield Label("NRC Diff: --", id="comp-nrc-diff")
                 yield Label("Volume Diff: --", id="comp-vol-diff")
-                yield Button("📈 Detailed Analysis", id="btn-detailed", variant="primary")
+                yield Button("📈 Detailed", id="btn-detailed", variant="primary")
+                yield Button("📄 Export", id="btn-export-comp", variant="primary")
     
     def on_mount(self):
         self._update_calculations()
@@ -816,3 +817,160 @@ class SideBySideComparatorScreen(Screen):
             lines.append(f"{freq:>6}Hz {a_val:>10.3f} {b_val:>10.3f} {diff:>+10.3f}")
         
         self.app.notify("\n".join(lines), timeout=10)
+
+    @on(Button.Pressed, "#btn-export-comp")
+    def export_comparison(self):
+        """Export comparison report to file."""
+        self._export_comparison_report()
+
+    def set_room_a_values(self, width: float, length: float, height: float,
+                          wall_mat: str, floor_mat: str, ceil_mat: str):
+        """Set Room A values from the main analyzer."""
+        # Update input values
+        self.query_one("#inp-a-width", Input).value = str(width)
+        self.query_one("#inp-a-length", Input).value = str(length)
+        self.query_one("#inp-a-height", Input).value = str(height)
+        
+        # Update material selections
+        self.query_one("#sel-a-wall", Select).value = wall_mat
+        self.query_one("#sel-a-floor", Select).value = floor_mat
+        self.query_one("#sel-a-ceil", Select).value = ceil_mat
+        
+        # Recalculate
+        self._update_calculations()
+
+    def _export_comparison_report(self):
+        """Export the comparison results to a text file."""
+        import datetime
+        from pathlib import Path
+        
+        # Get current values
+        vals_a = self._get_room_values("a")
+        vals_b = self._get_room_values("b")
+        
+        width_a, length_a, height_a, wall_a, floor_a, ceil_a = vals_a
+        width_b, length_b, height_b, wall_b, floor_b, ceil_b = vals_b
+        
+        # Calculate all values
+        rt60_a = compute_rt60_per_band(width_a, length_a, height_a, wall_a, floor_a, ceil_a)
+        rt60_b = compute_rt60_per_band(width_b, length_b, height_b, wall_b, floor_b, ceil_b)
+        volume_a = width_a * length_a * height_a
+        volume_b = width_b * length_b * height_b
+        surface_a = 2 * (length_a * height_a + width_a * height_a + width_a * length_a)
+        surface_b = 2 * (length_b * height_b + width_b * height_b + width_b * length_b)
+        schroeder_a = compute_schroeder_frequency(rt60_a, volume_a)
+        schroeder_b = compute_schroeder_frequency(rt60_b, volume_b)
+        nrc_a = calculate_room_nrc(width_a, length_a, height_a, wall_a, floor_a, ceil_a, MATERIALS)
+        nrc_b = calculate_room_nrc(width_b, length_b, height_b, wall_b, floor_b, ceil_b, MATERIALS)
+        rt60_500_a = rt60_a[2] if len(rt60_a) > 2 else 0.0
+        rt60_500_b = rt60_b[2] if len(rt60_b) > 2 else 0.0
+        
+        # Build report
+        sep = "=" * 70
+        sep2 = "-" * 50
+        
+        lines = [
+            sep,
+            "  ACOUSTICA -- ROOM COMPARISON REPORT",
+            f"  Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            sep,
+            "",
+            "ROOM A CONFIGURATION",
+            sep2,
+            f"  Dimensions: {width_a:.2f}m × {length_a:.2f}m × {height_a:.2f}m",
+            f"  Volume: {volume_a:.2f} m³",
+            f"  Surface Area: {surface_a:.2f} m²",
+            f"  Wall Material: {wall_a}",
+            f"  Floor Material: {floor_a}",
+            f"  Ceiling Material: {ceil_a}",
+            "",
+            "ROOM B CONFIGURATION",
+            sep2,
+            f"  Dimensions: {width_b:.2f}m × {length_b:.2f}m × {height_b:.2f}m",
+            f"  Volume: {volume_b:.2f} m³",
+            f"  Surface Area: {surface_b:.2f} m²",
+            f"  Wall Material: {wall_b}",
+            f"  Floor Material: {floor_b}",
+            f"  Ceiling Material: {ceil_b}",
+            "",
+            "ACOUSTIC ANALYSIS COMPARISON",
+            sep2,
+            f"  {'Metric':<20} {'Room A':<15} {'Room B':<15} {'Difference':<15}",
+            f"  {'-'*20} {'-'*15} {'-'*15} {'-'*15}",
+            f"  {'Volume (m³)':<20} {volume_a:<15.2f} {volume_b:<15.2f} {volume_b - volume_a:+.2f}",
+            f"  {'Surface Area (m²)':<20} {surface_a:<15.2f} {surface_b:<15.2f} {surface_b - surface_a:+.2f}",
+            f"  {'RT60 @ 500Hz (s)':<20} {rt60_500_a:<15.3f} {rt60_500_b:<15.3f} {rt60_500_b - rt60_500_a:+.3f}",
+            f"  {'Room NRC':<20} {nrc_a:<15.2f} {nrc_b:<15.2f} {nrc_b - nrc_a:+.2f}",
+            f"  {'Schroeder Freq (Hz)':<20} {schroeder_a:<15.1f} {schroeder_b:<15.1f} {schroeder_b - schroeder_a:+.1f}",
+            "",
+            "RT60 BY FREQUENCY BAND",
+            sep2,
+            f"  {'Frequency':<12} {'Room A':<12} {'Room B':<12} {'Difference':<12}",
+            f"  {'-'*12} {'-'*12} {'-'*12} {'-'*12}",
+        ]
+        
+        for i, freq in enumerate(FREQ_BANDS):
+            a_val = rt60_a[i] if i < len(rt60_a) else 0
+            b_val = rt60_b[i] if i < len(rt60_b) else 0
+            diff = b_val - a_val
+            lines.append(f"  {freq:<12}Hz {a_val:<12.3f} {b_val:<12.3f} {diff:+12.3f}")
+        
+        # Add interpretation
+        lines.extend([
+            "",
+            "INTERPRETATION",
+            sep2,
+        ])
+        
+        rt60_diff = rt60_500_b - rt60_500_a
+        nrc_diff = nrc_b - nrc_a
+        
+        if rt60_diff < -0.3:
+            lines.append("  ✓ Room B is significantly drier (better for speech/clarity)")
+        elif rt60_diff < -0.1:
+            lines.append("  ✓ Room B is slightly drier")
+        elif rt60_diff > 0.3:
+            lines.append("  ✗ Room B is significantly more reverberant")
+        elif rt60_diff > 0.1:
+            lines.append("  ✗ Room B is slightly more reverberant")
+        else:
+            lines.append("  ~ Both rooms have similar reverberation characteristics")
+        
+        if nrc_diff > 0.1:
+            lines.append("  ✓ Room B has significantly better absorption")
+        elif nrc_diff > 0.05:
+            lines.append("  ✓ Room B has better absorption")
+        elif nrc_diff < -0.1:
+            lines.append("  ✗ Room B has significantly less absorption")
+        elif nrc_diff < -0.05:
+            lines.append("  ✗ Room B has less absorption")
+        else:
+            lines.append("  ~ Both rooms have similar absorption characteristics")
+        
+        if volume_b > volume_a * 1.5:
+            lines.append("  ℹ Room B is much larger (may need more treatment for similar acoustics)")
+        elif volume_a > volume_b * 1.5:
+            lines.append("  ℹ Room A is much larger (may need more treatment for similar acoustics)")
+        
+        lines.extend([
+            "",
+            sep,
+            "  End of Comparison Report -- Acoustica",
+            sep,
+        ])
+        
+        # Save to reports folder
+        reports_dir = Path(__file__).resolve().parent.parent / "reports" / "comparisons"
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"room_comparison_{timestamp}.txt"
+        filepath = reports_dir / filename
+        
+        try:
+            filepath.write_text("\n".join(lines), encoding="utf-8")
+            self.app.notify(f"✓ Comparison report saved: {filename}")
+            return filepath
+        except Exception as e:
+            self.app.notify(f"❌ Error saving report: {e}", severity="error")
+            return None
