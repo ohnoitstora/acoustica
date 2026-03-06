@@ -1,0 +1,52 @@
+================================================================
+  ACOUSTICA -- MATERIAL COMPARISON REPORT
+  Generated : 2026-03-06 18:35:08
+================================================================
+
+MATERIAL DETAILS
+----------------------------------------------------------------
+  Property             | Material A           | Material B          
+  Name                 | Acoustic Foams       | Acoustic Foam       
+----------------------------------------------------------------
+
+ABSORPTION COEFFICIENTS COMPARISON
+----------------------------------------------------------------
+  Freq (Hz)  | Mat A      | Mat B      | Difference | Trend
+----------------------------------------------------------------
+  125        | 0.00       | 0.10       | 0.10       | Higher
+    Mat A: [                    ]
+    Mat B: [##                  ]
+
+  250        | 0.00       | 0.25       | 0.25       | Higher
+    Mat A: [                    ]
+    Mat B: [#####               ]
+
+  500        | 0.00       | 0.55       | 0.55       | Higher
+    Mat A: [                    ]
+    Mat B: [###########         ]
+
+  1000       | 0.00       | 0.80       | 0.80       | Higher
+    Mat A: [                    ]
+    Mat B: [################    ]
+
+  2000       | 0.00       | 0.90       | 0.90       | Higher
+    Mat A: [                    ]
+    Mat B: [##################  ]
+
+  4000       | 0.00       | 0.95       | 0.95       | Higher
+    Mat A: [                    ]
+    Mat B: [################### ]
+
+----------------------------------------------------------------
+  AVERAGE    | 0.00       | 0.59       | 0.59      
+----------------------------------------------------------------
+
+SUMMARY ANALYSIS
+----------------------------------------------------------------
+  * Acoustic Foam is significantly more absorptive overall than Acoustic Foams.
+  * Acoustic Foam performs better at low frequencies.
+  * Acoustic Foam performs better at high frequencies.
+
+================================================================
+  End of Comparison Report -- Acoustica
+================================================================

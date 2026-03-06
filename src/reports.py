@@ -18,6 +18,7 @@ REPORTS_DIR = Path(__file__).resolve().parent.parent / "reports"
 REPORT_TYPES = {
     "analysis": REPORTS_DIR / "analysis",
     "material": REPORTS_DIR / "material",
+    "material_comparison": REPORTS_DIR / "material_comparison",
     "treatment": REPORTS_DIR / "treatment",
     "mixer": REPORTS_DIR / "mixer",
     "other": REPORTS_DIR,  # Root directory for legacy/uncategorized reports
@@ -26,6 +27,7 @@ REPORT_TYPES = {
 REPORT_TYPE_LABELS = {
     "analysis": "Analysis Reports",
     "material": "Material Reports",
+    "material_comparison": "Material Comparisons",
     "treatment": "Treatment Reports",
     "mixer": "Mixer Reports",
     "other": "Other Reports",
@@ -93,6 +95,7 @@ class ReportsScreen(Screen):
         self._report_files: dict[str, list[Path]] = {
             "analysis": [],
             "material": [],
+            "material_comparison": [],
             "treatment": [],
             "mixer": [],
             "other": [],
@@ -100,6 +103,7 @@ class ReportsScreen(Screen):
         self._current_page: dict[str, int] = {
             "analysis": 0,
             "material": 0,
+            "material_comparison": 0,
             "treatment": 0,
             "mixer": 0,
             "other": 0,

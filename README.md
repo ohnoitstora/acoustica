@@ -64,6 +64,13 @@ Acoustica is a comprehensive acoustic analysis tool that runs entirely in your t
   - Input validation for absorption coefficients (0.00–1.00 range)
   - Export material specifications as detailed reports
   - Persistent storage in `custom_materials.json`
+- **Material Database Browser** — Browse, search, compare, and manage all materials
+  - Search and filter materials by name
+  - Sort by name or absorption values (average, low freq, high freq)
+  - Side-by-side comparison with visual bar charts
+  - Lock Material B (Space) to compare with current selection
+  - Export detailed comparison reports with ASCII graphs
+  - Edit or delete materials directly from the browser
 - **Built-in Materials** — Concrete, Gypsum Board, Carpet, Acoustic Foam, Hardwood Floor, Glass, Brick, Heavy Curtain, and more — all stored in `custom_materials.json`
 
 ### 🔧 Treatment Calculator
@@ -86,6 +93,7 @@ Acoustica is a comprehensive acoustic analysis tool that runs entirely in your t
 - **Tabbed Report Browser** — Browse and view reports organized by category:
   - Analysis Reports
   - Material Reports
+  - Material Comparisons
   - Treatment Reports
   - Mixer Reports
   - Other Reports
@@ -197,10 +205,12 @@ python acoustic_analyzer.py
 On launch, you'll see the main menu with options:
 
 1. **▶ Start Analysis** — Open the acoustic analyzer
-2. **⊞ Acoustic Mixer** — Real-time decay visualization
-3. **🔧 Material Builder** — Create/edit custom materials
-4. **📄 View Saved Reports** — Browse exported reports
-5. **🧮 Treatment Calculator** — Calculate treatment requirements
+2. **⚖️ Room Comparator** — Compare room configurations side by side
+3. **⊞ Acoustic Mixer** — Real-time decay visualization
+4. **🔧 Material Builder** — Create/edit custom materials
+5. **📚 Material Database** — Browse, compare, and manage materials
+6. **📄 View Saved Reports** — Browse exported reports
+7. **🧮 Treatment Calculator** — Calculate treatment requirements
 
 ---
 
@@ -325,6 +335,38 @@ Create and manage custom acoustic materials with precision:
 5. Click **Export** to generate a report (optional)
 
 Materials are immediately available in the Analyzer's wall/floor/ceiling dropdowns and the Acoustic Mixer's preset selector.
+
+---
+
+### 📚 Material Database Browser
+
+Browse, search, compare, and manage all acoustic materials:
+
+**Features:**
+- **Material List** — View all materials with their absorption coefficients for 6 frequency bands
+- **Search** — Filter materials by name in real-time
+- **Sort Options** — Sort by name, average absorption, low frequency, or high frequency performance
+- **Visual Comparison** — Side-by-side bar charts showing absorption coefficients
+- **Lock Material B** — Press `Space` to lock a material for comparison with the currently selected one
+- **Export Comparison** — Generate detailed comparison reports with ASCII graphs
+- **Edit/Delete** — Modify or remove materials directly from the browser
+
+**Keyboard Shortcuts:**
+| Key | Action |
+|-----|--------|
+| `↑/↓` | Navigate through materials |
+| `Space` | Lock/Unlock Material B for comparison |
+| `E` | Edit selected material |
+| `D` | Delete selected material |
+| `Ctrl+S` | Export comparison report |
+| `Escape` | Return to main menu |
+
+**Comparison Report Includes:**
+- Material details (names)
+- Frequency-by-frequency absorption comparison
+- Visual ASCII bar graphs for each frequency
+- Difference analysis (higher/lower/similar)
+- Summary analysis with recommendations
 
 ---
 
@@ -494,6 +536,7 @@ acoustica/
 ├── reports/                      # Exported reports
 │   ├── analysis/                 # RT60 analysis exports
 │   ├── material/                 # Material specification exports
+│   ├── material_comparison/      # Material comparison reports
 │   ├── treatment/                # Treatment calculator exports
 │   ├── mixer/                    # Acoustic mixer exports
 │   └── room_{timestamp}/         # Combined report + audio pairs (Listen feature)
@@ -507,6 +550,7 @@ acoustica/
     ├── constants.py              # Physics constants & material loader
     ├── export_report.py          # Report generation utilities
     ├── material_builder.py       # Material builder screen
+    ├── material_browser.py       # Material database browser screen
     ├── menu.py                   # Main menu screen
     ├── mixer.py                  # Acoustic mixer screen
     ├── modal.py                  # Modal screens (How It Works, Listen)
@@ -553,13 +597,23 @@ Understand how room geometry and materials affect sound quality before renovatio
 ## 📋 Changelog
 
 ### Latest
+- **Feature:** **Material Database Browser** — New screen for browsing, searching, sorting, and comparing all materials from your custom library
+  - Search materials by name with real-time filtering
+  - Sort by name or absorption values (average, low frequency, high frequency)
+  - Side-by-side comparison with visual bar charts
+  - Lock Material B (Space) to compare with current selection
+  - Export detailed comparison reports with ASCII graphs and analysis
+  - Edit or delete materials directly from the browser
+  - Centered delete confirmation modal
+- **Feature:** Added "Material Comparisons" tab to the Reports screen
+- **Feature:** `material_browser.py` — New module for Material Database Browser functionality
+
+### Previous
 - **Feature:** **Room Comparator** — Save any room configuration as a named snapshot and compare two rooms side by side with full acoustic breakdowns, RT60 bar charts, radar charts, diff tables, and a detailed "Compare Math" overlay
 - **Feature:** **Schroeder Frequency** — Computed per room ($f_{sch} = 2000\sqrt{RT_{60}/V}$) and displayed in the comparator panels
 - **Feature:** **NRC & Room NRC** — Noise Reduction Coefficient calculated per material and as a surface-area-weighted room average; shown in comparator panels
 - **Feature:** `ComparisonBarChart`, `AcousticRadarChart`, `AcousticDiffTable` — Three new custom TUI widgets powering the comparator visualizations
 - **Feature:** Snapshot persistence — room snapshots saved to `snapshots/` as JSON for future sessions
-
-### Previous
 - **Fix:** Resolved `NoMatches` crash when opening the Room Comparator — `set_room_a_values()` was querying DOM widgets before the screen was composed. Values are now stored in instance variables first and the DOM is only updated when the screen is already mounted.
 - **Fix:** Resolved export button ID collision between the Analyzer header and Material Builder — the header `v Export` button now renders correctly with its intended dark-orange `.hdr-btn` style
 
