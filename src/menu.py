@@ -29,6 +29,7 @@ class MainMenuScreen(Screen):
                     yield Button("⚖️  Room Comparator", id="btn-comparator", variant="primary")
                     yield Button("⊞  Acoustic Mixer", id="btn-mixer", variant="primary")
                     yield Button("🔧  Material Builder", id="btn-materials", variant="primary")
+                    yield Button("📚  Material Database", id="btn-material-browser", variant="primary")
                     yield Button("📄  View Saved Reports", id="btn-reports", variant="primary")
                     yield Button("🧮  Treatment Calculator", id="btn-calculator", variant="primary")
                     yield Button("⏻  Exit", id="btn-exit", variant="primary")
@@ -42,6 +43,10 @@ class MainMenuScreen(Screen):
     @on(Button.Pressed, "#btn-materials")
     def open_material_builder(self):
         self.app.push_screen("material_builder")
+
+    @on(Button.Pressed, "#btn-material-browser")
+    def open_material_browser(self):
+        self.app.push_screen("material_browser")
 
     @on(Button.Pressed, "#btn-reports")
     def open_reports(self):

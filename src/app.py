@@ -17,6 +17,7 @@ from .comparator import SideBySideComparatorScreen
 from .constants import MATERIAL_NAMES, MATERIALS
 from .export_report import export_report, REPORTS_DIR
 from .material_builder import MaterialBuilderScreen
+from .material_browser import MaterialDatabaseBrowserScreen
 from .menu import MainMenuScreen
 from .mixer import AcousticMixerPanel, AcousticMixerScreen
 from .modal import ExportDropdownModal, HowItWorksModal, ListenModal
@@ -351,6 +352,7 @@ class AcousticaApp(App):
         self.install_screen(MainMenuScreen(), name="menu")
         self.install_screen(AnalyzerScreen(self._state), name="analyzer")
         self.install_screen(MaterialBuilderScreen(), name="material_builder")
+        self.install_screen(MaterialDatabaseBrowserScreen(), name="material_browser")
         self.install_screen(ReportsScreen(), name="reports")
         self.install_screen(TreatmentCalculatorScreen(), name="calculator")
         self.install_screen(AcousticMixerScreen(), name="mixer")

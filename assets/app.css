@@ -266,6 +266,7 @@ HowItWorksModal > Container > Button {
 
 #btn-start,
 #btn-materials,
+#btn-material-browser,
 #btn-reports,
 #btn-calculator,
 #btn-mixer,
@@ -283,6 +284,7 @@ HowItWorksModal > Container > Button {
 
 #btn-start:hover,
 #btn-materials:hover,
+#btn-material-browser:hover,
 #btn-reports:hover,
 #btn-calculator:hover,
 #btn-mixer:hover,
@@ -294,6 +296,7 @@ HowItWorksModal > Container > Button {
 
 #btn-start:focus,
 #btn-materials:focus,
+#btn-material-browser:focus,
 #btn-reports:focus,
 #btn-calculator:focus,
 #btn-mixer:focus,
@@ -1337,4 +1340,217 @@ AcousticDiffTable {
 ComparisonBarChart, AcousticRadarChart {
     height: 14;
     width: 100%;
+}
+
+/* Material Database Browser Styles */
+#material-browser-container {
+    layout: vertical;
+    height: 100%;
+    background: #0e0a18;
+}
+
+#browser-header {
+    height: 3;
+    background: #0a061a;
+    border-bottom: solid #3d1a6e;
+    layout: horizontal;
+    padding: 0 1;
+    align-vertical: middle;
+}
+
+#browser-title {
+    color: #f0b429;
+    text-style: bold;
+    width: 1fr;
+    content-align: left middle;
+}
+
+#btn-browser-back {
+    min-width: 10;
+    height: 1;
+    background: #2e1a52;
+    color: #f0b429;
+    border: none;
+    text-style: bold;
+}
+
+#btn-browser-back:hover {
+    background: #4a2a80;
+}
+
+#browser-controls {
+    height: 5;
+    background: #18102e;
+    border-bottom: solid #3d1a6e;
+    layout: horizontal;
+    padding: 1;
+    align-vertical: middle;
+}
+
+.control-group {
+    margin-right: 2;
+    padding: 0 1;
+}
+
+.control-label {
+    color: #9180a8;
+    height: 1;
+    margin-bottom: 0;
+}
+
+#search-input {
+    width: 30;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5a623;
+}
+
+#sort-select {
+    width: 28;
+    border: solid #3d1a6e;
+    background: #0a0616;
+    color: #f5eeff;
+}
+
+#browser-main {
+    layout: horizontal;
+    height: 1fr;
+}
+
+#material-list-panel {
+    width: 2fr;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 0 1;
+    overflow: hidden;
+}
+
+MaterialListWidget {
+    height: 1fr;
+    overflow-y: scroll;
+}
+
+#comparison-panel {
+    width: 1fr;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 1;
+}
+
+.panel-title {
+    color: #f0b429;
+    text-style: bold;
+    height: 1;
+    margin-bottom: 1;
+}
+
+MaterialComparisonBars {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#material-action-buttons {
+    height: 3;
+    layout: horizontal;
+    align: center middle;
+    margin-top: 1;
+}
+
+#btn-edit {
+    min-width: 12;
+    height: 2;
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+    margin-right: 1;
+}
+
+#btn-edit:hover {
+    background: #4a2a80;
+}
+
+#btn-delete {
+    min-width: 12;
+    height: 2;
+    background: #4a1a1a;
+    color: #ff6b6b;
+    border: solid #ff6b6b;
+}
+
+#btn-delete:hover {
+    background: #6a2a2a;
+}
+
+#browser-footer {
+    height: 2;
+    background: #0a061a;
+    border-top: solid #3d1a6e;
+    padding: 0 1;
+    align: center middle;
+}
+
+#browser-hint {
+    color: #6b5f7a;
+    text-style: italic;
+    content-align: center middle;
+}
+
+/* Delete Confirmation Modal */
+#delete-modal-container {
+    align: center middle;
+    width: 50;
+    height: auto;
+    border: thick #ff6b6b;
+    background: #18102e;
+    padding: 1 2;
+}
+
+#delete-modal-title {
+    color: #ff6b6b;
+    text-style: bold;
+    content-align: center middle;
+    margin-bottom: 1;
+}
+
+#delete-modal-message {
+    color: #9180a8;
+    content-align: center middle;
+}
+
+#delete-modal-name {
+    color: #f0b429;
+    text-style: bold;
+    content-align: center middle;
+    margin-bottom: 1;
+}
+
+#delete-modal-buttons {
+    layout: horizontal;
+    align: center middle;
+    height: 3;
+}
+
+#btn-cancel-delete {
+    min-width: 12;
+    height: 2;
+    background: #2e1a52;
+    color: #f0b429;
+    border: solid #f0b429;
+    margin-right: 1;
+}
+
+#btn-confirm-delete {
+    min-width: 12;
+    height: 2;
+    background: #4a1a1a;
+    color: #ff6b6b;
+    border: solid #ff6b6b;
+}
+
+#btn-cancel-delete:hover {
+    background: #4a2a80;
+}
+
+#btn-confirm-delete:hover {
+    background: #6a2a2a;
 }
