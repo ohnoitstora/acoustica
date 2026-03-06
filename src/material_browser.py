@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import datetime
 import json
 from pathlib import Path
 
@@ -11,7 +12,7 @@ from rich.text import Text
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical, Center, Middle
 from textual.screen import Screen
 from textual.widget import Widget
 from textual.widgets import Button, Input, Label, Select, Static
@@ -19,6 +20,7 @@ from textual.widgets import Button, Input, Label, Select, Static
 from .constants import FREQ_BANDS, FREQ_LABELS, BAR_COLOURS, BLOCK
 
 CUSTOM_MATERIALS_PATH = Path(__file__).resolve().parent.parent / "custom_materials.json"
+REPORTS_DIR = Path(__file__).resolve().parent.parent / "reports" / "material_comparison"
 
 
 class MaterialComparisonBars(Widget):
@@ -324,13 +326,15 @@ class DeleteConfirmModal(Screen):
         self._on_confirm = on_confirm
     
     def compose(self) -> ComposeResult:
-        with Vertical(id="delete-modal-container"):
-            yield Label("⚠️  DELETE MATERIAL", id="delete-modal-title")
-            yield Label(f"Are you sure you want to delete:", id="delete-modal-message")
-            yield Label(f"'{self._material_name}'?", id="delete-modal-name")
-            with Horizontal(id="delete-modal-buttons"):
-                yield Button("Cancel", id="btn-cancel-delete", variant="default")
-                yield Button("Delete", id="btn-confirm-delete", variant="error")
+        with Middle():
+            with Center():
+                with Vertical(id="delete-modal-container"):
+                    yield Label("⚠️  DELETE MATERIAL", id="delete-modal-title")
+                    yield Label(f"Are you sure you want to delete:", id="delete-modal-message")
+                    yield Label(f"'{self._material_name}'?", id="delete-modal-name")
+                    with Horizontal(id="delete-modal-buttons"):
+                        yield Button("Cancel", id="btn-cancel-delete", variant="default")
+                        yield Button("Delete", id="btn-confirm-delete", variant="error")
     
     @on(Button.Pressed, "#btn-cancel-delete")
     def cancel(self):
@@ -354,6 +358,7 @@ class MaterialDatabaseBrowserScreen(Screen):
         Binding("space", "toggle_lock", "Lock Material B"),
         Binding("e", "edit_material", "Edit"),
         Binding("d", "delete_material", "Delete"),
+        Binding("ctrl+s", "export_comparison", "Export Comparison"),
     ]
     
     def __init__(self):
@@ -404,10 +409,11 @@ class MaterialDatabaseBrowserScreen(Screen):
                     with Horizontal(id="material-action-buttons"):
                         yield Button("✏️  Edit", id="btn-edit", variant="primary")
                         yield Button("🗑️  Delete", id="btn-delete", variant="error")
+                        yield Button("📥  Export Comparison", id="btn-export-comparison", variant="success")
             
             # Footer with hints
             with Horizontal(id="browser-footer"):
-                yield Label("↑/↓: Navigate  |  Space: Lock Material B  |  E: Edit  |  D: Delete  |  Esc: Back", id="browser-hint")
+                yield Label("↑/↓: Navigate  |  Space: Lock Material B  |  E: Edit  |  D: Delete  |  Ctrl+S: Export  |  Esc: Back", id="browser-hint")
     
     def on_mount(self):
         self._load_materials()
@@ -529,6 +535,117 @@ class MaterialDatabaseBrowserScreen(Screen):
         self._material_list.toggle_lock()
         self._update_comparison()
     
+    @on(Button.Pressed, "#btn-export-comparison")
+    def action_export_comparison(self):
+        """Export comparison report between Material A and Material B."""
+        selected = self._material_list.get_selected_material()
+        locked = self._material_list.get_locked_material()
+        
+        if not selected or not locked:
+            self.app.notify("Select and lock materials to compare first.", severity="warning")
+            return
+            
+        self._do_export_comparison(selected, locked)
+
+    def _do_export_comparison(self, mat_a: dict, mat_b: dict):
+        """Generate and save the comparison report."""
+        name_a = mat_a.get("name", "Material A")
+        name_b = mat_b.get("name", "Material B")
+        coeffs_a = mat_a.get("absorption_coefficients", {})
+        coeffs_b = mat_b.get("absorption_coefficients", {})
+        
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        sep = "=" * 64
+        sep2 = "-" * 64
+        
+        lines = [
+            sep,
+            "  ACOUSTICA -- MATERIAL COMPARISON REPORT",
+            f"  Generated : {timestamp}",
+            sep,
+            "",
+            "MATERIAL DETAILS",
+            sep2,
+            f"  {'Property':<20} | {'Material A':<20} | {'Material B':<20}",
+            f"  {'Name':<20} | {name_a[:20]:<20} | {name_b[:20]:<20}",
+            sep2,
+            "",
+            "ABSORPTION COEFFICIENTS COMPARISON",
+            sep2,
+            f"  {'Freq (Hz)':<10} | {'Mat A':<10} | {'Mat B':<10} | {'Difference':<10} | {'Trend'}",
+            sep2,
+        ]
+        
+        avg_a = 0
+        avg_b = 0
+        
+        for freq in FREQ_BANDS:
+            val_a = coeffs_a.get(f"{freq}Hz", 0.0)
+            val_b = coeffs_b.get(f"{freq}Hz", 0.0)
+            diff = val_b - val_a
+            trend = "Higher" if diff > 0.05 else ("Lower" if diff < -0.05 else "Similar")
+            
+            avg_a += val_a
+            avg_b += val_b
+            
+            lines.append(f"  {freq:<10} | {val_a:<10.2f} | {val_b:<10.2f} | {diff:<10.2f} | {trend}")
+            
+            # Visual ASCII Bars
+            bar_a = int(val_a * 20)
+            bar_b = int(val_b * 20)
+            lines.append(f"    Mat A: [{'#' * bar_a + ' ' * (20 - bar_a)}]")
+            lines.append(f"    Mat B: [{'#' * bar_b + ' ' * (20 - bar_b)}]")
+            lines.append("")
+            
+        avg_a /= len(FREQ_BANDS)
+        avg_b /= len(FREQ_BANDS)
+        
+        lines.extend([
+            sep2,
+            f"  {'AVERAGE':<10} | {avg_a:<10.2f} | {avg_b:<10.2f} | {avg_b - avg_a:<10.2f}",
+            sep2,
+            "",
+            "SUMMARY ANALYSIS",
+            sep2,
+        ])
+        
+        if avg_b > avg_a + 0.1:
+            lines.append(f"  * {name_b} is significantly more absorptive overall than {name_a}.")
+        elif avg_b < avg_a - 0.1:
+            lines.append(f"  * {name_b} is significantly more reflective overall than {name_a}.")
+        else:
+            lines.append(f"  * Both materials have similar overall absorption characteristics.")
+            
+        # Specific frequency analysis
+        low_a = (coeffs_a.get("125Hz", 0) + coeffs_a.get("250Hz", 0)) / 2
+        low_b = (coeffs_b.get("125Hz", 0) + coeffs_b.get("250Hz", 0)) / 2
+        if low_b > low_a + 0.1:
+            lines.append(f"  * {name_b} performs better at low frequencies.")
+            
+        high_a = (coeffs_a.get("2000Hz", 0) + coeffs_a.get("4000Hz", 0)) / 2
+        high_b = (coeffs_b.get("2000Hz", 0) + coeffs_b.get("4000Hz", 0)) / 2
+        if high_b > high_a + 0.1:
+            lines.append(f"  * {name_b} performs better at high frequencies.")
+            
+        lines.extend([
+            "",
+            sep,
+            "  End of Comparison Report -- Acoustica",
+            sep,
+        ])
+        
+        # Save report
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        filename = f"comp_{name_a[:10]}_{name_b[:10]}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        filename = filename.replace(" ", "_").replace("/", "_")
+        path = REPORTS_DIR / filename
+        
+        try:
+            path.write_text("\n".join(lines), encoding="utf-8")
+            self.app.notify(f"✓ Exported: {filename}", severity="information")
+        except Exception as e:
+            self.app.notify(f"Export failed: {e}", severity="error")
+
     def on_key(self, event):
         """Handle key events."""
         if event.key == "up":
