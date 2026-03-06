@@ -1499,23 +1499,31 @@ MaterialComparisonBars {
 }
 
 #export-button-row {
-    height: 4;
+    height: 5;
     layout: horizontal;
     align: center middle;
     margin-top: 1;
+    width: 100%;
 }
 
 #btn-export-comparison {
-    min-width: 28;
+    width: 100%;
     height: 3;
-    background: #1a3a2e;
-    color: #69db7c;
-    border: solid #69db7c;
+    background: #1a4a3e;
+    color: #b8ffc4;
+    border: double #69db7c;
     text-style: bold;
+    content-align: center middle;
 }
 
 #btn-export-comparison:hover {
-    background: #2a5a4e;
+    background: #2a6a5e;
+    border: double #b8ffc4;
+}
+
+#btn-export-comparison:focus {
+    background: #2a6a5e;
+    border: double #b8ffc4;
 }
 
 #browser-footer {
