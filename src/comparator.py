@@ -25,6 +25,7 @@ from .physics import (
     compute_schroeder_frequency,
     rt60_quality,
 )
+from .ui_components import ComparisonBarChart
 
 SNAPSHOTS_DIR = Path(__file__).resolve().parent.parent / "snapshots"
 
@@ -664,6 +665,16 @@ class SideBySideComparatorScreen(Screen):
                         yield Label("Room NRC: --", id="res-b-nrc")
                         yield Label("Schroeder: -- Hz", id="res-b-schroeder")
             
+            # Comparison chart showing RT60 for both rooms
+            with Vertical(id="comparison-chart-container"):
+                self._comparison_chart = ComparisonBarChart(
+                    rt60_a=[0.0] * 6,
+                    rt60_b=[0.0] * 6,
+                    room_a_name="Room A",
+                    room_b_name="Room B"
+                )
+                yield self._comparison_chart
+            
             # Comparison summary bar
             with Horizontal(id="sbs-summary"):
                 yield Label("📊 COMPARISON", id="sbs-summary-title")
@@ -739,6 +750,14 @@ class SideBySideComparatorScreen(Screen):
         self.query_one("#comp-rt60-diff", Label).update(f"RT60 Diff: {rt60_sign}{rt60_diff:.3f}s")
         self.query_one("#comp-nrc-diff", Label).update(f"NRC Diff: {nrc_sign}{nrc_diff:.2f}")
         self.query_one("#comp-vol-diff", Label).update(f"Volume Diff: {vol_sign}{vol_diff:.1f}m³")
+        
+        # Update the comparison chart with RT60 values
+        self._comparison_chart.update_values(
+            rt60_a=rt60_a,
+            rt60_b=rt60_b,
+            room_a_name="Room A",
+            room_b_name="Room B"
+        )
     
     @on(Button.Pressed, ".sbs-dim-btn")
     def on_dim_btn(self, event: Button.Pressed):

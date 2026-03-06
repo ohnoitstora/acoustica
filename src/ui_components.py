@@ -17,8 +17,184 @@ from .constants import (
     SOURCE_COLOUR,
     SOURCE_DOT,
 )
-from .physics import calculate_mode_pressure_map
+from .physics import calculate_mode_pressure_map, rt60_quality
 from .state import AcousticState
+
+
+class ComparisonBarChart(Widget):
+    """Side-by-side bar chart comparing RT60 values for two rooms."""
+
+    DEFAULT_CSS = """
+    ComparisonBarChart {
+        height: 14;
+        border: solid $accent;
+        padding: 0 1;
+    }
+    """
+
+    def __init__(self, rt60_a: list[float], rt60_b: list[float], room_a_name: str = "Room A", room_b_name: str = "Room B") -> None:
+        super().__init__()
+        self._rt60_a = rt60_a
+        self._rt60_b = rt60_b
+        self._room_a_name = room_a_name
+        self._room_b_name = room_b_name
+
+    def update_values(self, rt60_a: list[float], rt60_b: list[float], room_a_name: str = "Room A", room_b_name: str = "Room B"):
+        """Update the chart with new RT60 values."""
+        self._rt60_a = rt60_a
+        self._rt60_b = rt60_b
+        self._room_a_name = room_a_name
+        self._room_b_name = room_b_name
+        self.refresh()
+
+    def _get_bar_color(self, val_a: float, val_b: float, is_room_a: bool) -> str:
+        """Determine bar color based on which room has better acoustics.
+        
+        Lower RT60 is generally better (less reverberation = more clarity).
+        Uses green for the better room, red for the worse room.
+        """
+        diff = val_b - val_a
+        threshold = 0.05  # Small threshold to avoid coloring nearly equal values
+        
+        if abs(diff) < threshold:
+            return "dim white"  # Similar values - neutral color
+        
+        if is_room_a:
+            # Room A: lower RT60 is better
+            return "bright_green" if diff > threshold else "bright_red"
+        else:
+            # Room B: lower RT60 is better  
+            return "bright_green" if diff < -threshold else "bright_red"
+
+    def render(self) -> Text:
+        width_chars = max(self.size.width - 2, 8)
+        height_chars = max(self.size.height - 2, 6)
+        
+        # Calculate max value for scaling
+        all_vals = list(self._rt60_a) + list(self._rt60_b)
+        max_rt = max(all_vals) if all_vals and max(all_vals) > 1e-9 else 1.0
+        
+        # Reserve space for header and labels
+        header_height = 2
+        label_height = 2
+        chart_height = height_chars - header_height - label_height
+        bar_height = chart_height - 1
+        
+        # Width per frequency band
+        num_bands = len(FREQ_BANDS)
+        slot_width = max(4, width_chars // num_bands)
+        
+        # Initialize grid
+        grid = [[" "] * width_chars for _ in range(height_chars)]
+        gstyle = [[""] * width_chars for _ in range(height_chars)]
+        
+        # Draw header
+        header_text = f"RT60 COMPARISON"
+        for i, ch in enumerate(header_text):
+            if i < width_chars:
+                grid[0][i] = ch
+                gstyle[0][i] = "bold gold1"
+        
+        # Draw room labels (A and B for each band)
+        for idx, freq in enumerate(FREQ_LABELS):
+            slot_x = idx * slot_width
+            center_x = slot_x + slot_width // 2
+            
+            # Frequency label at bottom
+            freq_str = freq.strip()
+            for li, lc in enumerate(freq_str):
+                col = slot_x + slot_width // 4 + li
+                if 0 <= col < width_chars:
+                    grid[height_chars - 1][col] = lc
+                    gstyle[height_chars - 1][col] = "dim white"
+            
+            # Get values for this band
+            val_a = self._rt60_a[idx] if idx < len(self._rt60_a) else 0
+            val_b = self._rt60_b[idx] if idx < len(self._rt60_b) else 0
+            
+            # Draw Room A bar (left half of slot)
+            bar_a_width = max(1, slot_width // 2 - 1)
+            bar_a_x = slot_x + 1
+            color_a = self._get_bar_color(val_a, val_b, True)
+            
+            frac_a = val_a / max_rt if max_rt > 0 else 0.0
+            eights_fill_a = int(frac_a * bar_height * 8)
+            full_rows_a = eights_fill_a // 8
+            part_a = eights_fill_a % 8
+            
+            for row in range(full_rows_a):
+                row_idx = header_height + bar_height - 1 - row
+                for col in range(bar_a_x, min(bar_a_x + bar_a_width, width_chars)):
+                    grid[row_idx][col] = "█"
+                    gstyle[row_idx][col] = color_a
+            
+            if part_a > 0 and full_rows_a < bar_height:
+                row_idx = header_height + bar_height - 1 - full_rows_a
+                ch = BLOCK[part_a]
+                for col in range(bar_a_x, min(bar_a_x + bar_a_width, width_chars)):
+                    grid[row_idx][col] = ch
+                    gstyle[row_idx][col] = color_a
+            
+            # Draw Room B bar (right half of slot)
+            bar_b_width = max(1, slot_width // 2 - 1)
+            bar_b_x = slot_x + slot_width // 2
+            color_b = self._get_bar_color(val_a, val_b, False)
+            
+            frac_b = val_b / max_rt if max_rt > 0 else 0.0
+            eights_fill_b = int(frac_b * bar_height * 8)
+            full_rows_b = eights_fill_b // 8
+            part_b = eights_fill_b % 8
+            
+            for row in range(full_rows_b):
+                row_idx = header_height + bar_height - 1 - row
+                for col in range(bar_b_x, min(bar_b_x + bar_b_width, width_chars)):
+                    grid[row_idx][col] = "█"
+                    gstyle[row_idx][col] = color_b
+            
+            if part_b > 0 and full_rows_b < bar_height:
+                row_idx = header_height + bar_height - 1 - full_rows_b
+                ch = BLOCK[part_b]
+                for col in range(bar_b_x, min(bar_b_x + bar_b_width, width_chars)):
+                    grid[row_idx][col] = ch
+                    gstyle[row_idx][col] = color_b
+            
+            # Draw values above bars
+            val_a_str = f"{val_a:.2f}"
+            val_b_str = f"{val_b:.2f}"
+            
+            # Position values above their respective bars
+            val_row = header_height + bar_height - full_rows_a - (1 if part_a else 0) - 1
+            for li, lc in enumerate(val_a_str):
+                col = bar_a_x + li
+                if 0 <= col < width_chars and val_row >= header_height:
+                    grid[val_row][col] = lc
+                    gstyle[val_row][col] = color_a
+            
+            val_row = header_height + bar_height - full_rows_b - (1 if part_b else 0) - 1
+            for li, lc in enumerate(val_b_str):
+                col = bar_b_x + li
+                if 0 <= col < width_chars and val_row >= header_height:
+                    grid[val_row][col] = lc
+                    gstyle[val_row][col] = color_b
+            
+            # Draw "A" and "B" labels below the bars
+            ab_row = height_chars - 2
+            if 0 <= bar_a_x < width_chars:
+                grid[ab_row][bar_a_x + bar_a_width // 2] = "A"
+                gstyle[ab_row][bar_a_x + bar_a_width // 2] = "dim cyan"
+            if 0 <= bar_b_x < width_chars:
+                grid[ab_row][bar_b_x + bar_b_width // 2] = "B"
+                gstyle[ab_row][bar_b_x + bar_b_width // 2] = "dim magenta"
+        
+        # Build output text
+        out = Text()
+        for row_idx, row in enumerate(grid):
+            for col_idx, ch in enumerate(row):
+                style = gstyle[row_idx][col_idx]
+                out.append(ch, style=Style.parse(style) if style else Style())
+            if row_idx < height_chars - 1:
+                out.append("\n")
+        return out
 
 
 class RoomCanvas(Widget):

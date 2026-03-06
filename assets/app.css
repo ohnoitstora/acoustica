@@ -1242,3 +1242,17 @@ ReportViewModal {
 #btn-detailed:hover {
     background: #4a2a80;
 }
+
+/* Comparison Chart Container */
+#comparison-chart-container {
+    height: 16;
+    border: solid #2e1a52;
+    background: #18102e;
+    padding: 0 1;
+    margin: 1 0;
+}
+
+ComparisonBarChart {
+    height: 100%;
+    width: 100%;
+}
