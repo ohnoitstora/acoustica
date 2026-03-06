@@ -545,12 +545,12 @@ class SideBySideComparatorScreen(Screen):
                 yield Label("Side-by-Side Analysis", id="sbs-header-subtitle")
                 yield Button("← Back", id="btn-sbs-back", variant="primary")
             
-            # Make the body scrollable
-            with Vertical(id="sbs-scrollable-content"):
-                # Main content - two room panels
-                with Horizontal(id="sbs-body"):
-                    # Room A Panel
-                    with Vertical(id="room-a-panel"):
+            # Main scrollable content area
+            with Vertical(id="sbs-main-scrollable"):
+                # Room panels side by side (both scrollable)
+                with Horizontal(id="sbs-panels-row"):
+                    # Room A Panel - individually scrollable
+                    with Vertical(id="room-a-scrollable"):
                         yield Label("🏠 ROOM A", id="room-a-title")
                         
                         with Vertical(classes="room-input-section"):
@@ -608,8 +608,8 @@ class SideBySideComparatorScreen(Screen):
                             yield Label("Room NRC: --", id="res-a-nrc")
                             yield Label("Schroeder: -- Hz", id="res-a-schroeder")
                     
-                    # Room B Panel
-                    with Vertical(id="room-b-panel"):
+                    # Room B Panel - individually scrollable
+                    with Vertical(id="room-b-scrollable"):
                         yield Label("🏢 ROOM B", id="room-b-title")
                         
                         with Vertical(classes="room-input-section"):
@@ -667,10 +667,11 @@ class SideBySideComparatorScreen(Screen):
                             yield Label("Room NRC: --", id="res-b-nrc")
                             yield Label("Schroeder: -- Hz", id="res-b-schroeder")
                 
-                # Comparison charts container
-                with Vertical(id="comparison-charts-container"):
+                # Visual charts section (below the room panels)
+                with Vertical(id="comparison-charts-section"):
                     # RT60 Bar Chart
                     with Vertical(id="comparison-bar-container"):
+                        yield Label("📊 RT60 COMPARISON", classes="chart-title")
                         self._comparison_chart = ComparisonBarChart(
                             rt60_a=[0.0] * 6,
                             rt60_b=[0.0] * 6,
@@ -681,13 +682,14 @@ class SideBySideComparatorScreen(Screen):
                     
                     # Acoustic Radar Chart
                     with Vertical(id="comparison-radar-container"):
+                        yield Label("🎯 ACOUSTIC PERSONALITY", classes="chart-title")
                         self._radar_chart = AcousticRadarChart(
                             rt60_a=[0.0] * 6,
                             rt60_b=[0.0] * 6
                         )
                         yield self._radar_chart
             
-            # Comparison summary bar
+            # Comparison summary bar (fixed at bottom)
             with Horizontal(id="sbs-summary"):
                 yield Label("📊 COMPARISON", id="sbs-summary-title")
                 yield Label("RT60 Diff: --", id="comp-rt60-diff")

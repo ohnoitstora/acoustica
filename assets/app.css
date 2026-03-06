@@ -1243,19 +1243,81 @@ ReportViewModal {
     background: #4a2a80;
 }
 
-/* Comparison Chart Container */
-#sbs-scrollable-content {
-    overflow-y: scroll;
-    height: 1fr;
+/* Side-by-Side Comparator Styles */
+#sbs-comparator {
+    height: 100%;
+    layout: vertical;
 }
 
-#comparison-charts-container {
+#sbs-header {
+    height: 3;
+    background: #0a061a;
+    border-bottom: solid #3d1a6e;
+    layout: horizontal;
+    padding: 0 1;
+    align-vertical: middle;
+}
+
+#sbs-header-title {
+    color: #f0b429;
+    text-style: bold;
+    width: 1fr;
+    content-align: left middle;
+}
+
+#sbs-header-subtitle {
+    color: #6b5f7a;
+    width: auto;
+    margin-right: 2;
+    content-align: right middle;
+}
+
+/* Main scrollable content area */
+#sbs-main-scrollable {
+    height: 1fr;
+    overflow-y: scroll;
+}
+
+/* Room panels row */
+#sbs-panels-row {
     height: auto;
+    layout: horizontal;
+}
+
+/* Individual room panels - scrollable */
+#room-a-scrollable, #room-b-scrollable {
+    width: 1fr;
+    height: auto;
+    max-height: 35;
+    overflow-y: scroll;
+    border: solid #2e1a52;
+    background: #18102e;
     padding: 0 1;
 }
 
+#room-a-title, #room-b-title {
+    color: #f0b429;
+    text-style: bold;
+    height: 1;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+
+.chart-title {
+    color: #f0b429;
+    text-style: bold;
+    height: 1;
+    margin-bottom: 0;
+}
+
+/* Comparison charts section */
+#comparison-charts-section {
+    height: auto;
+    padding: 1;
+}
+
 #comparison-bar-container, #comparison-radar-container {
-    height: 18;
+    height: 16;
     border: solid #2e1a52;
     background: #18102e;
     padding: 0 1;
@@ -1263,6 +1325,6 @@ ReportViewModal {
 }
 
 ComparisonBarChart, AcousticRadarChart {
-    height: 100%;
+    height: 14;
     width: 100%;
 }
