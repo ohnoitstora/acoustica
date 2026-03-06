@@ -287,6 +287,71 @@ class AcousticRadarChart(Widget):
         return out
 
 
+class AcousticDiffTable(Widget):
+    """Table showing frequency-by-frequency differences between Room A and Room B."""
+
+    DEFAULT_CSS = """
+    AcousticDiffTable {
+        height: 14;
+        border: solid $accent;
+        padding: 1 2;
+        background: $surface;
+    }
+    """
+
+    def __init__(self, rt60_a: list[float], rt60_b: list[float], mats_a: list[str], mats_b: list[str]) -> None:
+        super().__init__()
+        self._rt60_a = rt60_a
+        self._rt60_b = rt60_b
+        self._mats_a = mats_a # [wall, floor, ceil]
+        self._mats_b = mats_b
+
+    def update_values(self, rt60_a: list[float], rt60_b: list[float], mats_a: list[str], mats_b: list[str]):
+        self._rt60_a = rt60_a
+        self._rt60_b = rt60_b
+        self._mats_a = mats_a
+        self._mats_b = mats_b
+        self.refresh()
+
+    def _get_impact_analysis(self) -> str:
+        """Determines which material change had the most positive impact."""
+        diffs = []
+        labels = ["Walls", "Floor", "Ceiling"]
+        for i in range(3):
+            if self._mats_a[i] != self._mats_b[i]:
+                diffs.append(labels[i])
+        
+        if not diffs:
+            return "No material changes detected."
+        return f"Material changes in: {', '.join(diffs)}"
+
+    def render(self) -> Text:
+        out = Text()
+        out.append(f"{'BAND':<10} {'ROOM A':<12} {'ROOM B':<12} {'IMPROVEMENT %':<15}\n", style="bold gold1")
+        out.append("─" * 50 + "\n", style="dim white")
+
+        for i, freq in enumerate(FREQ_LABELS):
+            a = self._rt60_a[i] if i < len(self._rt60_a) else 0.0
+            b = self._rt60_b[i] if i < len(self._rt60_b) else 0.0
+            
+            # Improvement = lower RT60 is better (usually)
+            diff_pct = 0.0
+            if a > 0:
+                diff_pct = ((a - b) / a) * 100
+            
+            color = "bright_green" if diff_pct > 0.5 else "bright_red"
+            if abs(diff_pct) <= 0.5: color = "white"
+            
+            sign = "+" if diff_pct > 0 else ""
+            
+            out.append(f"{freq:<10} {a:<12.3f} {b:<12.3f} ")
+            out.append(f"{sign}{diff_pct:>6.1f}%", style=f"bold {color}")
+            out.append("\n")
+
+        out.append("\n" + self._get_impact_analysis(), style="italic cyan")
+        return out
+
+
 class RoomCanvas(Widget):
     DEFAULT_CSS = """
     RoomCanvas {

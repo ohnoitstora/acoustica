@@ -25,7 +25,7 @@ from .physics import (
     compute_schroeder_frequency,
     rt60_quality,
 )
-from .ui_components import ComparisonBarChart, AcousticRadarChart
+from .ui_components import ComparisonBarChart, AcousticRadarChart, AcousticDiffTable
 
 SNAPSHOTS_DIR = Path(__file__).resolve().parent.parent / "snapshots"
 
@@ -547,10 +547,10 @@ class SideBySideComparatorScreen(Screen):
             
             # Main scrollable content area
             with Vertical(id="sbs-main-scrollable"):
-                # Room panels side by side (both scrollable)
+                # Room panels side by side (NOT individually scrollable anymore)
                 with Horizontal(id="sbs-panels-row"):
-                    # Room A Panel - individually scrollable
-                    with Vertical(id="room-a-scrollable"):
+                    # Room A Panel
+                    with Vertical(id="room-a-panel"):
                         yield Label("🏠 ROOM A", id="room-a-title")
                         
                         with Vertical(classes="room-input-section"):
@@ -608,8 +608,8 @@ class SideBySideComparatorScreen(Screen):
                             yield Label("Room NRC: --", id="res-a-nrc")
                             yield Label("Schroeder: -- Hz", id="res-a-schroeder")
                     
-                    # Room B Panel - individually scrollable
-                    with Vertical(id="room-b-scrollable"):
+                    # Room B Panel
+                    with Vertical(id="room-b-panel"):
                         yield Label("🏢 ROOM B", id="room-b-title")
                         
                         with Vertical(classes="room-input-section"):
@@ -667,7 +667,18 @@ class SideBySideComparatorScreen(Screen):
                             yield Label("Room NRC: --", id="res-b-nrc")
                             yield Label("Schroeder: -- Hz", id="res-b-schroeder")
                 
-                # Visual charts section (below the room panels)
+                # Acoustic Diff Table (NEW)
+                with Vertical(id="diff-table-container"):
+                    yield Label("📋 ACOUSTIC DIFFERENCE ANALYSIS", classes="chart-title")
+                    self._diff_table = AcousticDiffTable(
+                        rt60_a=[0.0] * 6,
+                        rt60_b=[0.0] * 6,
+                        mats_a=["", "", ""],
+                        mats_b=["", "", ""]
+                    )
+                    yield self._diff_table
+
+                # Visual charts section
                 with Vertical(id="comparison-charts-section"):
                     # RT60 Bar Chart
                     with Vertical(id="comparison-bar-container"):
@@ -775,6 +786,14 @@ class SideBySideComparatorScreen(Screen):
         
         # Update the radar chart
         self._radar_chart.update_values(rt60_a=rt60_a, rt60_b=rt60_b)
+        
+        # Update the diff table
+        self._diff_table.update_values(
+            rt60_a=rt60_a, 
+            rt60_b=rt60_b,
+            mats_a=[wall_a, floor_a, ceil_a],
+            mats_b=[wall_b, floor_b, ceil_b]
+        )
     
     @on(Button.Pressed, ".sbs-dim-btn")
     def on_dim_btn(self, event: Button.Pressed):

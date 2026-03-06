@@ -1284,15 +1284,25 @@ ReportViewModal {
     layout: horizontal;
 }
 
-/* Individual room panels - scrollable */
-#room-a-scrollable, #room-b-scrollable {
+/* Individual room panels - full height */
+#room-a-panel, #room-b-panel {
     width: 1fr;
     height: auto;
-    max-height: 35;
-    overflow-y: scroll;
     border: solid #2e1a52;
     background: #18102e;
     padding: 0 1;
+}
+
+#diff-table-container {
+    height: auto;
+    padding: 1;
+    margin-top: 1;
+}
+
+AcousticDiffTable {
+    height: 16;
+    width: 100%;
+    margin-top: 1;
 }
 
 #room-a-title, #room-b-title {
