@@ -1498,6 +1498,26 @@ MaterialComparisonBars {
     background: #6a2a2a;
 }
 
+#export-button-row {
+    height: 4;
+    layout: horizontal;
+    align: center middle;
+    margin-top: 1;
+}
+
+#btn-export-comparison {
+    min-width: 28;
+    height: 3;
+    background: #1a3a2e;
+    color: #69db7c;
+    border: solid #69db7c;
+    text-style: bold;
+}
+
+#btn-export-comparison:hover {
+    background: #2a5a4e;
+}
+
 #browser-footer {
     height: 2;
     background: #0a061a;

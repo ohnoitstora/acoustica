@@ -409,7 +409,10 @@ class MaterialDatabaseBrowserScreen(Screen):
                     with Horizontal(id="material-action-buttons"):
                         yield Button("✏️  Edit", id="btn-edit", variant="primary")
                         yield Button("🗑️  Delete", id="btn-delete", variant="error")
-                        yield Button("📥  Export Comparison", id="btn-export-comparison", variant="success")
+                    
+                    # Export button on separate row
+                    with Horizontal(id="export-button-row"):
+                        yield Button("📥  Export Comparison Report", id="btn-export-comparison", variant="success")
             
             # Footer with hints
             with Horizontal(id="browser-footer"):
