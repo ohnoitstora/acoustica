@@ -94,6 +94,16 @@ Acoustica is a comprehensive acoustic analysis tool that runs entirely in your t
 - **Organized Storage** — Separate folders for each module under `reports/`
 - **Timestamped Exports** — Automatic file naming with date/time stamps
 
+### ⚖️ Room Comparator
+- **Side-by-Side Analysis** — Load two saved room snapshots and compare their full acoustic profiles at a glance
+- **Room Snapshots** — Save any room configuration (dimensions + materials) as a named snapshot; snapshots persist to `snapshots/` as JSON files
+- **Comparison Panels** — Each panel shows dimensions, materials, RT60 per band, axial modes, Room NRC, and Schroeder frequency
+- **RT60 Bar Chart** — Color-coded `ComparisonBarChart` widget showing both rooms side by side for every octave band
+- **Acoustic Radar Chart** — Spider/radar chart (`AcousticRadarChart`) that plots each room's acoustic personality across frequency bands
+- **Diff Table** — `AcousticDiffTable` highlights per-band differences and provides an automatic impact analysis summary
+- **Compare Math** — In-app overlay with a full mathematical breakdown: RT60 deltas per band, NRC delta, Schroeder frequency delta, volume delta, and plain-English interpretation
+- **Keyboard Shortcut** — `Escape` to return to the main menu
+
 ### 🎨 User Experience
 - **Synthwave Theme** — Beautiful purple/amber/pink dark mode design
 - **Modular Navigation** — Main menu with quick access to all features
@@ -223,6 +233,31 @@ On launch, you'll see the main menu with options:
 
 ---
 ## 📚 Feature Guide
+
+### ⚖️ Room Comparator
+
+Save room configurations as snapshots and compare two rooms' acoustic properties side by side:
+
+**Saving a Snapshot:**
+1. Configure a room in the Analyzer (dimensions + materials)
+2. Click **💾 Save Snapshot** in the Analyzer header
+3. Enter a name for the snapshot — it's saved to `snapshots/` as a JSON file
+
+**Comparing Rooms:**
+1. Open **⚖️ Room Comparator** from the main menu
+2. Select a snapshot in the **Room A** and **Room B** dropdowns
+3. Both panels populate with full acoustic data: dimensions, materials, RT60 per band, axial modes, Room NRC, and Schroeder frequency
+4. The **RT60 Bar Chart** renders a color-coded side-by-side bar graph
+5. The **Radar Chart** plots each room's frequency-domain acoustic personality
+6. The **Diff Table** highlights band-by-band differences with an automatic impact summary
+7. Click **📊 Compare Math** to see a detailed numerical breakdown with plain-English interpretation
+
+**What each metric means:**
+- **Room NRC** — Noise Reduction Coefficient; area-weighted average absorption across the room's surfaces (higher = more damped)
+- **Schroeder Frequency** — The crossover below which discrete room modes dominate; above it, diffuse-field acoustics apply
+- **RT60 Δ** — Positive = Room B is more reverberant; negative = Room B is more damped
+
+---
 
 ### 🎧 Audio Simulation (Listen Feature)
 
@@ -370,6 +405,42 @@ $$f_n = \frac{n \times c}{2L}$$
 
 ---
 
+### Schroeder Frequency
+
+The Schroeder frequency marks the transition between the modal region (where discrete standing waves dominate) and the statistical region (where diffuse-field conditions apply):
+
+$$f_{sch} = 2000 \sqrt{\frac{\overline{RT_{60}}}{V}}$$
+
+**Where:**
+- **$f_{sch}$** = Schroeder frequency (Hz)
+- **$\overline{RT_{60}}$** = Average RT₆₀ across all octave bands (s)
+- **V** = Room volume (m³)
+
+**Why it matters:**
+- Below $f_{sch}$ — treat the room modally (target specific room-mode frequencies)
+- Above $f_{sch}$ — broadband absorption is more effective
+- Smaller, more reverberant rooms have a higher Schroeder frequency
+
+---
+
+### Noise Reduction Coefficient (NRC)
+
+NRC is the standardized single-number rating for how absorptive a material (or an entire room) is:
+
+$$NRC = \frac{\alpha_{250} + \alpha_{500} + \alpha_{1k} + \alpha_{2k}}{4}$$
+
+Rounded to the nearest **0.05**.
+
+**Room NRC** extends this to an entire room by first computing surface-area-weighted absorption coefficients for walls, floor, and ceiling, then applying the NRC formula to the resulting values.
+
+**Scale:**
+- `0.00` — Perfectly reflective (concrete, glass)
+- `0.25` — Low absorption (plywood, hard surfaces)
+- `0.50–0.75` — Moderate absorption (carpet, curtains)
+- `1.00` — Perfectly absorptive (anechoic treatment)
+
+---
+
 ### Impulse Response Synthesis
 
 For audio simulation, Acoustica generates synthetic impulse responses:
@@ -418,6 +489,8 @@ acoustica/
 ├── assets/
 │   └── app.css                   # Textual styling (synthwave theme)
 │
+├── snapshots/                    # Saved room snapshots (JSON)
+│
 ├── reports/                      # Exported reports
 │   ├── analysis/                 # RT60 analysis exports
 │   ├── material/                 # Material specification exports
@@ -430,18 +503,20 @@ acoustica/
     ├── app.py                    # Main Textual app & AnalyzerScreen
     ├── audio_engine.py           # Audio generation & convolution
     ├── calculator.py             # Treatment calculator screen
-    ├── comparator.py             # Side-by-side room comparator screen
+    ├── comparator.py             # Room comparator + snapshot system
     ├── constants.py              # Physics constants & material loader
     ├── export_report.py          # Report generation utilities
     ├── material_builder.py       # Material builder screen
     ├── menu.py                   # Main menu screen
     ├── mixer.py                  # Acoustic mixer screen
     ├── modal.py                  # Modal screens (How It Works, Listen)
-    ├── physics.py                # RT60 & room mode calculations
+    ├── physics.py                # RT60, room modes, NRC & Schroeder calculations
     ├── reports.py                # Saved reports browser screen
     ├── state.py                  # Shared application state
     ├── state_backup.py           # State persistence utilities
-    └── ui_components.py          # Custom widgets (Canvas, BarChart)
+    └── ui_components.py          # Custom widgets (Canvas, BarChart,
+                                  #   ComparisonBarChart, AcousticRadarChart,
+                                  #   AcousticDiffTable)
 ```
 
 ---
@@ -478,9 +553,14 @@ Understand how room geometry and materials affect sound quality before renovatio
 ## 📋 Changelog
 
 ### Latest
-- **Fix:** Resolved `NoMatches` crash when opening the Room Comparator — `set_room_a_values()` was querying DOM widgets before the screen was composed. Values are now stored in instance variables first and the DOM is only updated when the screen is already mounted.
+- **Feature:** **Room Comparator** — Save any room configuration as a named snapshot and compare two rooms side by side with full acoustic breakdowns, RT60 bar charts, radar charts, diff tables, and a detailed "Compare Math" overlay
+- **Feature:** **Schroeder Frequency** — Computed per room ($f_{sch} = 2000\sqrt{RT_{60}/V}$) and displayed in the comparator panels
+- **Feature:** **NRC & Room NRC** — Noise Reduction Coefficient calculated per material and as a surface-area-weighted room average; shown in comparator panels
+- **Feature:** `ComparisonBarChart`, `AcousticRadarChart`, `AcousticDiffTable` — Three new custom TUI widgets powering the comparator visualizations
+- **Feature:** Snapshot persistence — room snapshots saved to `snapshots/` as JSON for future sessions
 
 ### Previous
+- **Fix:** Resolved `NoMatches` crash when opening the Room Comparator — `set_room_a_values()` was querying DOM widgets before the screen was composed. Values are now stored in instance variables first and the DOM is only updated when the screen is already mounted.
 - **Fix:** Resolved export button ID collision between the Analyzer header and Material Builder — the header `v Export` button now renders correctly with its intended dark-orange `.hdr-btn` style
 
 ---
