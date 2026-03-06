@@ -197,6 +197,96 @@ class ComparisonBarChart(Widget):
         return out
 
 
+class AcousticRadarChart(Widget):
+    """Radar chart comparing room personalities (Bass, Mids, Treble)."""
+
+    DEFAULT_CSS = """
+    AcousticRadarChart {
+        height: 18;
+        border: solid $accent;
+        padding: 0 1;
+    }
+    """
+
+    def __init__(self, rt60_a: list[float], rt60_b: list[float]) -> None:
+        super().__init__()
+        self._rt60_a = rt60_a
+        self._rt60_b = rt60_b
+
+    def update_values(self, rt60_a: list[float], rt60_b: list[float]):
+        self._rt60_a = rt60_a
+        self._rt60_b = rt60_b
+        self.refresh()
+
+    def _get_personality(self, rt60: list[float]) -> tuple[float, float, float]:
+        """Convert RT60 bands to Bass, Mid, Treble intensity (0.0 to 1.0)."""
+        if not rt60 or len(rt60) < 6:
+            return 0.0, 0.0, 0.0
+        # Bass: 125, 250
+        bass = sum(rt60[0:2]) / 2.0
+        # Mids: 500, 1000
+        mids = sum(rt60[2:4]) / 2.0
+        # Treble: 2000, 4000
+        treble = sum(rt60[4:6]) / 2.0
+        
+        # Normalize (cap at 2.0s for visual scaling)
+        limit = 2.0
+        return min(1.0, bass/limit), min(1.0, mids/limit), min(1.0, treble/limit)
+
+    def render(self) -> Text:
+        w = self.size.width - 2
+        h = self.size.height - 2
+        if w < 10 or h < 10:
+             return Text("Area too small")
+             
+        cx, cy = w // 2, h // 2
+        radius = min(cx, cy) - 2
+        
+        grid = [[" "] * w for _ in range(h)]
+        styles = [[None] * w for _ in range(h)]
+
+        def _put(x, y, ch, style):
+            if 0 <= x < w and 0 <= y < h:
+                grid[y][x] = ch
+                styles[y][x] = style
+
+        # Draw axis labels
+        _put(cx - 2, 0, "BASS", "bold gold1")
+        _put(0, h-1, "TREBLE", "bold medium_purple")
+        _put(w-5, h-1, "MIDS", "bold bright_green")
+
+        # Get values for both rooms
+        points_a = self._get_personality(self._rt60_a)
+        points_b = self._get_personality(self._rt60_b)
+
+        # Draw "Web" (Max bounds)
+        for i in range(radius):
+             _put(cx, cy - i, "·", "dim white")
+             _put(cx - i, cy + i//2, "·", "dim white")
+             _put(cx + i, cy + i//2, "·", "dim white")
+
+        # Draw Room A Shape (Cyan)
+        ba, ma, ta = points_a
+        _put(cx, cy - int(ba * radius), "A", "bold cyan")
+        _put(cx + int(ma * radius), cy + int(ma * radius // 2), "A", "bold cyan")
+        _put(cx - int(ta * radius), cy + int(ta * radius // 2), "A", "bold cyan")
+
+        # Draw Room B Shape (Magenta)
+        bb, mb, tb = points_b
+        _put(cx, cy - int(bb * radius), "B", "bold magenta")
+        _put(cx + int(mb * radius), cy + int(mb * radius // 2), "B", "bold magenta")
+        _put(cx - int(tb * radius), cy + int(tb * radius // 2), "B", "bold magenta")
+
+        out = Text()
+        for row_idx, row in enumerate(grid):
+            for col_idx, ch in enumerate(row):
+                s = styles[row_idx][col_idx]
+                out.append(ch, style=Style.parse(s) if s else Style())
+            if row_idx < h - 1:
+                out.append("\n")
+        return out
+
+
 class RoomCanvas(Widget):
     DEFAULT_CSS = """
     RoomCanvas {

@@ -1244,15 +1244,25 @@ ReportViewModal {
 }
 
 /* Comparison Chart Container */
-#comparison-chart-container {
-    height: 16;
+#sbs-scrollable-content {
+    overflow-y: scroll;
+    height: 1fr;
+}
+
+#comparison-charts-container {
+    height: auto;
+    padding: 0 1;
+}
+
+#comparison-bar-container, #comparison-radar-container {
+    height: 18;
     border: solid #2e1a52;
     background: #18102e;
     padding: 0 1;
     margin: 1 0;
 }
 
-ComparisonBarChart {
+ComparisonBarChart, AcousticRadarChart {
     height: 100%;
     width: 100%;
 }

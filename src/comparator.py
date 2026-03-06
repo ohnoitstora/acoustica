@@ -25,7 +25,7 @@ from .physics import (
     compute_schroeder_frequency,
     rt60_quality,
 )
-from .ui_components import ComparisonBarChart
+from .ui_components import ComparisonBarChart, AcousticRadarChart
 
 SNAPSHOTS_DIR = Path(__file__).resolve().parent.parent / "snapshots"
 
@@ -545,135 +545,147 @@ class SideBySideComparatorScreen(Screen):
                 yield Label("Side-by-Side Analysis", id="sbs-header-subtitle")
                 yield Button("← Back", id="btn-sbs-back", variant="primary")
             
-            # Main content - two room panels
-            with Horizontal(id="sbs-body"):
-                # Room A Panel
-                with Vertical(id="room-a-panel"):
-                    yield Label("🏠 ROOM A", id="room-a-title")
+            # Make the body scrollable
+            with Vertical(id="sbs-scrollable-content"):
+                # Main content - two room panels
+                with Horizontal(id="sbs-body"):
+                    # Room A Panel
+                    with Vertical(id="room-a-panel"):
+                        yield Label("🏠 ROOM A", id="room-a-title")
+                        
+                        with Vertical(classes="room-input-section"):
+                            yield Label("DIMENSIONS (m)", classes="sbs-section-title")
+                            
+                            with Horizontal(classes="sbs-dim-row"):
+                                yield Label("Width:", classes="sbs-dim-label")
+                                yield Button("-", id="dec-a-width", classes="sbs-dim-btn")
+                                yield Input(str(self._room_a_width), id="inp-a-width", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                                yield Button("+", id="inc-a-width", classes="sbs-dim-btn")
+                            
+                            with Horizontal(classes="sbs-dim-row"):
+                                yield Label("Length:", classes="sbs-dim-label")
+                                yield Button("-", id="dec-a-length", classes="sbs-dim-btn")
+                                yield Input(str(self._room_a_length), id="inp-a-length", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                                yield Button("+", id="inc-a-length", classes="sbs-dim-btn")
+                            
+                            with Horizontal(classes="sbs-dim-row"):
+                                yield Label("Height:", classes="sbs-dim-label")
+                                yield Button("-", id="dec-a-height", classes="sbs-dim-btn")
+                                yield Input(str(self._room_a_height), id="inp-a-height", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                                yield Button("+", id="inc-a-height", classes="sbs-dim-btn")
+                        
+                        with Vertical(classes="room-input-section"):
+                            yield Label("MATERIALS", classes="sbs-section-title")
+                            
+                            with Horizontal(classes="sbs-mat-row"):
+                                yield Label("Walls:", classes="sbs-mat-label")
+                                yield Select(
+                                    [(m, m) for m in self._material_names],
+                                    value=self._room_a_wall_mat,
+                                    id="sel-a-wall"
+                                )
+                            
+                            with Horizontal(classes="sbs-mat-row"):
+                                yield Label("Floor:", classes="sbs-mat-label")
+                                yield Select(
+                                    [(m, m) for m in self._material_names],
+                                    value=self._room_a_floor_mat,
+                                    id="sel-a-floor"
+                                )
+                            
+                            with Horizontal(classes="sbs-mat-row"):
+                                yield Label("Ceiling:", classes="sbs-mat-label")
+                                yield Select(
+                                    [(m, m) for m in self._material_names],
+                                    value=self._room_a_ceil_mat,
+                                    id="sel-a-ceil"
+                                )
+                        
+                        with Vertical(classes="room-results-section"):
+                            yield Label("RESULTS", classes="sbs-section-title")
+                            yield Label("Volume: -- m³", id="res-a-volume")
+                            yield Label("RT60 @ 500Hz: -- s", id="res-a-rt60")
+                            yield Label("Room NRC: --", id="res-a-nrc")
+                            yield Label("Schroeder: -- Hz", id="res-a-schroeder")
                     
-                    with Vertical(classes="room-input-section"):
-                        yield Label("DIMENSIONS (m)", classes="sbs-section-title")
+                    # Room B Panel
+                    with Vertical(id="room-b-panel"):
+                        yield Label("🏢 ROOM B", id="room-b-title")
                         
-                        with Horizontal(classes="sbs-dim-row"):
-                            yield Label("Width:", classes="sbs-dim-label")
-                            yield Button("-", id="dec-a-width", classes="sbs-dim-btn")
-                            yield Input(str(self._room_a_width), id="inp-a-width", classes="sbs-dim-input", restrict=r"[0-9.]*")
-                            yield Button("+", id="inc-a-width", classes="sbs-dim-btn")
+                        with Vertical(classes="room-input-section"):
+                            yield Label("DIMENSIONS (m)", classes="sbs-section-title")
+                            
+                            with Horizontal(classes="sbs-dim-row"):
+                                yield Label("Width:", classes="sbs-dim-label")
+                                yield Button("-", id="dec-b-width", classes="sbs-dim-btn")
+                                yield Input(str(self._room_b_width), id="inp-b-width", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                                yield Button("+", id="inc-b-width", classes="sbs-dim-btn")
+                            
+                            with Horizontal(classes="sbs-dim-row"):
+                                yield Label("Length:", classes="sbs-dim-label")
+                                yield Button("-", id="dec-b-length", classes="sbs-dim-btn")
+                                yield Input(str(self._room_b_length), id="inp-b-length", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                                yield Button("+", id="inc-b-length", classes="sbs-dim-btn")
+                            
+                            with Horizontal(classes="sbs-dim-row"):
+                                yield Label("Height:", classes="sbs-dim-label")
+                                yield Button("-", id="dec-b-height", classes="sbs-dim-btn")
+                                yield Input(str(self._room_b_height), id="inp-b-height", classes="sbs-dim-input", restrict=r"[0-9.]*")
+                                yield Button("+", id="inc-b-height", classes="sbs-dim-btn")
                         
-                        with Horizontal(classes="sbs-dim-row"):
-                            yield Label("Length:", classes="sbs-dim-label")
-                            yield Button("-", id="dec-a-length", classes="sbs-dim-btn")
-                            yield Input(str(self._room_a_length), id="inp-a-length", classes="sbs-dim-input", restrict=r"[0-9.]*")
-                            yield Button("+", id="inc-a-length", classes="sbs-dim-btn")
+                        with Vertical(classes="room-input-section"):
+                            yield Label("MATERIALS", classes="sbs-section-title")
+                            
+                            with Horizontal(classes="sbs-mat-row"):
+                                yield Label("Walls:", classes="sbs-mat-label")
+                                yield Select(
+                                    [(m, m) for m in self._material_names],
+                                    value=self._room_b_wall_mat,
+                                    id="sel-b-wall"
+                                )
+                            
+                            with Horizontal(classes="sbs-mat-row"):
+                                yield Label("Floor:", classes="sbs-mat-label")
+                                yield Select(
+                                    [(m, m) for m in self._material_names],
+                                    value=self._room_b_floor_mat,
+                                    id="sel-b-floor"
+                                )
+                            
+                            with Horizontal(classes="sbs-mat-row"):
+                                yield Label("Ceiling:", classes="sbs-mat-label")
+                                yield Select(
+                                    [(m, m) for m in self._material_names],
+                                    value=self._room_b_ceil_mat,
+                                    id="sel-b-ceil"
+                                )
                         
-                        with Horizontal(classes="sbs-dim-row"):
-                            yield Label("Height:", classes="sbs-dim-label")
-                            yield Button("-", id="dec-a-height", classes="sbs-dim-btn")
-                            yield Input(str(self._room_a_height), id="inp-a-height", classes="sbs-dim-input", restrict=r"[0-9.]*")
-                            yield Button("+", id="inc-a-height", classes="sbs-dim-btn")
-                    
-                    with Vertical(classes="room-input-section"):
-                        yield Label("MATERIALS", classes="sbs-section-title")
-                        
-                        with Horizontal(classes="sbs-mat-row"):
-                            yield Label("Walls:", classes="sbs-mat-label")
-                            yield Select(
-                                [(m, m) for m in self._material_names],
-                                value=self._room_a_wall_mat,
-                                id="sel-a-wall"
-                            )
-                        
-                        with Horizontal(classes="sbs-mat-row"):
-                            yield Label("Floor:", classes="sbs-mat-label")
-                            yield Select(
-                                [(m, m) for m in self._material_names],
-                                value=self._room_a_floor_mat,
-                                id="sel-a-floor"
-                            )
-                        
-                        with Horizontal(classes="sbs-mat-row"):
-                            yield Label("Ceiling:", classes="sbs-mat-label")
-                            yield Select(
-                                [(m, m) for m in self._material_names],
-                                value=self._room_a_ceil_mat,
-                                id="sel-a-ceil"
-                            )
-                    
-                    with Vertical(classes="room-results-section"):
-                        yield Label("RESULTS", classes="sbs-section-title")
-                        yield Label("Volume: -- m³", id="res-a-volume")
-                        yield Label("RT60 @ 500Hz: -- s", id="res-a-rt60")
-                        yield Label("Room NRC: --", id="res-a-nrc")
-                        yield Label("Schroeder: -- Hz", id="res-a-schroeder")
+                        with Vertical(classes="room-results-section"):
+                            yield Label("RESULTS", classes="sbs-section-title")
+                            yield Label("Volume: -- m³", id="res-b-volume")
+                            yield Label("RT60 @ 500Hz: -- s", id="res-b-rt60")
+                            yield Label("Room NRC: --", id="res-b-nrc")
+                            yield Label("Schroeder: -- Hz", id="res-b-schroeder")
                 
-                # Room B Panel
-                with Vertical(id="room-b-panel"):
-                    yield Label("🏢 ROOM B", id="room-b-title")
+                # Comparison charts container
+                with Vertical(id="comparison-charts-container"):
+                    # RT60 Bar Chart
+                    with Vertical(id="comparison-bar-container"):
+                        self._comparison_chart = ComparisonBarChart(
+                            rt60_a=[0.0] * 6,
+                            rt60_b=[0.0] * 6,
+                            room_a_name="Room A",
+                            room_b_name="Room B"
+                        )
+                        yield self._comparison_chart
                     
-                    with Vertical(classes="room-input-section"):
-                        yield Label("DIMENSIONS (m)", classes="sbs-section-title")
-                        
-                        with Horizontal(classes="sbs-dim-row"):
-                            yield Label("Width:", classes="sbs-dim-label")
-                            yield Button("-", id="dec-b-width", classes="sbs-dim-btn")
-                            yield Input(str(self._room_b_width), id="inp-b-width", classes="sbs-dim-input", restrict=r"[0-9.]*")
-                            yield Button("+", id="inc-b-width", classes="sbs-dim-btn")
-                        
-                        with Horizontal(classes="sbs-dim-row"):
-                            yield Label("Length:", classes="sbs-dim-label")
-                            yield Button("-", id="dec-b-length", classes="sbs-dim-btn")
-                            yield Input(str(self._room_b_length), id="inp-b-length", classes="sbs-dim-input", restrict=r"[0-9.]*")
-                            yield Button("+", id="inc-b-length", classes="sbs-dim-btn")
-                        
-                        with Horizontal(classes="sbs-dim-row"):
-                            yield Label("Height:", classes="sbs-dim-label")
-                            yield Button("-", id="dec-b-height", classes="sbs-dim-btn")
-                            yield Input(str(self._room_b_height), id="inp-b-height", classes="sbs-dim-input", restrict=r"[0-9.]*")
-                            yield Button("+", id="inc-b-height", classes="sbs-dim-btn")
-                    
-                    with Vertical(classes="room-input-section"):
-                        yield Label("MATERIALS", classes="sbs-section-title")
-                        
-                        with Horizontal(classes="sbs-mat-row"):
-                            yield Label("Walls:", classes="sbs-mat-label")
-                            yield Select(
-                                [(m, m) for m in self._material_names],
-                                value=self._room_b_wall_mat,
-                                id="sel-b-wall"
-                            )
-                        
-                        with Horizontal(classes="sbs-mat-row"):
-                            yield Label("Floor:", classes="sbs-mat-label")
-                            yield Select(
-                                [(m, m) for m in self._material_names],
-                                value=self._room_b_floor_mat,
-                                id="sel-b-floor"
-                            )
-                        
-                        with Horizontal(classes="sbs-mat-row"):
-                            yield Label("Ceiling:", classes="sbs-mat-label")
-                            yield Select(
-                                [(m, m) for m in self._material_names],
-                                value=self._room_b_ceil_mat,
-                                id="sel-b-ceil"
-                            )
-                    
-                    with Vertical(classes="room-results-section"):
-                        yield Label("RESULTS", classes="sbs-section-title")
-                        yield Label("Volume: -- m³", id="res-b-volume")
-                        yield Label("RT60 @ 500Hz: -- s", id="res-b-rt60")
-                        yield Label("Room NRC: --", id="res-b-nrc")
-                        yield Label("Schroeder: -- Hz", id="res-b-schroeder")
-            
-            # Comparison chart showing RT60 for both rooms
-            with Vertical(id="comparison-chart-container"):
-                self._comparison_chart = ComparisonBarChart(
-                    rt60_a=[0.0] * 6,
-                    rt60_b=[0.0] * 6,
-                    room_a_name="Room A",
-                    room_b_name="Room B"
-                )
-                yield self._comparison_chart
+                    # Acoustic Radar Chart
+                    with Vertical(id="comparison-radar-container"):
+                        self._radar_chart = AcousticRadarChart(
+                            rt60_a=[0.0] * 6,
+                            rt60_b=[0.0] * 6
+                        )
+                        yield self._radar_chart
             
             # Comparison summary bar
             with Horizontal(id="sbs-summary"):
@@ -758,6 +770,9 @@ class SideBySideComparatorScreen(Screen):
             room_a_name="Room A",
             room_b_name="Room B"
         )
+        
+        # Update the radar chart
+        self._radar_chart.update_values(rt60_a=rt60_a, rt60_b=rt60_b)
     
     @on(Button.Pressed, ".sbs-dim-btn")
     def on_dim_btn(self, event: Button.Pressed):
