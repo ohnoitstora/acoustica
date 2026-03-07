@@ -1,17 +1,6 @@
 {
   "materials": [
     {
-      "name": "Concrete (Bare)",
-      "absorption_coefficients": {
-        "125Hz": 0.01,
-        "250Hz": 0.01,
-        "500Hz": 0.02,
-        "1000Hz": 0.02,
-        "2000Hz": 0.03,
-        "4000Hz": 0.04
-      }
-    },
-    {
       "name": "Gypsum Board",
       "absorption_coefficients": {
         "125Hz": 0.29,
